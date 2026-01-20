@@ -3,79 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محمل إنستقرام الشامل</title>
+    <title>محمل إنستقرام الاحترافي</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; border: 1px solid #dbdbdb; }
-        h2 { color: #262626; margin-bottom: 20px; }
-        input { width: 100%; padding: 15px; margin: 15px 0; border: 1px solid #dbdbdb; border-radius: 10px; box-sizing: border-box; background: #fafafa; }
-        button { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; border: none; padding: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-        #result { margin-top: 25px; }
-        .card { border: 1px solid #efefef; padding: 20px; border-radius: 15px; background: #fff; animation: fadeIn 0.5s ease-in; }
-        .download-btn { display: block; margin-top: 15px; background: #0095f6; color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 500px; text-align: center; }
+        h1 { color: #1c1e21; font-size: 24px; margin-bottom: 20px; }
+        input { width: 100%; padding: 15px; margin: 15px 0; border: 2px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 16px; transition: border-color 0.3s; }
+        input:focus { border-color: #bc1888; outline: none; }
+        button { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; border: none; padding: 15px 30px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 18px; font-weight: bold; transition: transform 0.2s; }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result { margin-top: 30px; }
+        .media-card { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: right; }
+        .download-btn { display: inline-block; background-color: #0095f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; margin-top: 10px; font-weight: bold; width: 100%; text-align: center; box-sizing: border-box; }
+        .media-type { font-size: 12px; color: #65676b; text-transform: uppercase; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>محمل إنستقرام الشامل</h2>
-    <p style="color: #8e8e8e; font-size: 13px;">فيديو، صور، ستوري، هايلايت</p>
+    <h1>تحميل من إنستقرام</h1>
+    <p>فيديو، صور، ستوري، هايلايت</p>
     
-    <input type="text" id="urlInput" placeholder="ضع رابط إنستقرام هنا...">
-    <button id="downloadBtn" onclick="handleDownload()">جلب المحتوى</button>
+    <input type="text" id="urlInput" placeholder="أدخل رابط إنستقرام هنا...">
+    <button id="downloadBtn" onclick="startDownload()">تحميل الآن</button>
 
     <div id="result"></div>
 </div>
 
 <script>
-    async function handleDownload() {
-        const urlInput = document.getElementById('urlInput').value.trim();
+    async function startDownload() {
+        const urlInput = document.getElementById('urlInput');
         const resultDiv = document.getElementById('result');
         const btn = document.getElementById('downloadBtn');
+        const url = urlInput.value.trim();
 
-        if (!urlInput) return alert("يرجى وضع الرابط");
+        if (!url) { alert("من فضلك أدخل الرابط أولاً!"); return; }
 
         btn.disabled = true;
-        btn.innerText = "جاري جلب البيانات...";
-        resultDiv.innerHTML = `<p>⏳ جاري المعالجة...</p>`;
+        btn.innerHTML = "جاري المعالجة...";
+        resultDiv.innerHTML = "⏳ انتظر قليلاً، جاري جلب الميديا...";
 
         try {
+            // ملاحظة: تأكد أن هذا الرابط هو رابط الووركر الخاص بك
             const response = await fetch('https://instagram-downloader.nasralhrby370.workers.dev', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: urlInput })
+                body: JSON.stringify({ url: url })
             });
 
-            const data = await response.json();
-            console.log("الرد:", data);
+            const resData = await response.json();
+            console.log("Response from Worker:", resData);
 
-            // استخراج الروابط - دعم الصور والفيديوهات (API 120 Structure)
-            let links = [];
-            if (data.links && data.links.length > 0) links = data.links;
-            else if (data.result && data.result.links) links = data.result.links;
+            resultDiv.innerHTML = ""; // مسح رسالة التحميل
 
-            if (links.length > 0) {
-                resultDiv.innerHTML = "";
-                links.forEach((item, index) => {
-                    const link = item.link || item.url;
-                    const type = item.type || "ميديا";
+            // معالجة الرد بناءً على هيكلة API /get
+            let mediaItems = [];
+
+            // إذا كان الرد يحتوي على مصفوفة روابط مباشرة
+            if (resData.links && Array.isArray(resData.links)) {
+                mediaItems = resData.links;
+            } 
+            // إذا كان الرد بداخل كائن data (تنسيق v2)
+            else if (resData.data && resData.data.links) {
+                mediaItems = resData.data.links;
+            }
+            // إذا كان فيديو واحد مباشر
+            else if (resData.link) {
+                mediaItems = [{ link: resData.link, type: 'video' }];
+            }
+
+            if (mediaItems.length > 0) {
+                mediaItems.forEach((item, index) => {
+                    const downloadUrl = item.link || item.url;
+                    const typeLabel = (item.type === 'video' || item.type === 'mp4') ? "فيديو 📹" : "صورة 🖼️";
+                    
                     resultDiv.innerHTML += `
-                        <div class="card" style="margin-bottom: 10px;">
-                            <p>✅ تم العثور على ${type} ${links.length > 1 ? index + 1 : ""}</p>
-                            <a href="${link}" target="_blank" class="download-btn">تحميل الحين</a>
+                        <div class="media-card">
+                            <span class="media-type">${typeLabel}</span>
+                            <a href="${downloadUrl}" target="_blank" class="download-btn" download>اضغط هنا للتحميل</a>
                         </div>
                     `;
                 });
             } else {
-                resultDiv.innerHTML = `<p style="color: red;">❌ لم نجد ميديا. تأكد أن الحساب عام.</p>`;
+                resultDiv.innerHTML = `<p style="color:red;">⚠️ لم نجد ميديا في هذا الرابط. تأكد أن الحساب عام وليس خاص.</p>`;
             }
+
         } catch (error) {
-            resultDiv.innerHTML = `<p style="color: red;">⚠️ خطأ في الاتصال بالووركر.</p>`;
+            console.error(error);
+            resultDiv.innerHTML = `<p style="color:red;">❌ حدث خطأ في الاتصال بالخادم. حاول مرة أخرى.</p>`;
         } finally {
             btn.disabled = false;
-            btn.innerText = "جلب المحتوى";
+            btn.innerHTML = "تحميل الآن";
         }
     }
 </script>
