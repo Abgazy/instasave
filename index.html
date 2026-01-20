@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -220,28 +219,25 @@
     <div class="logo">📷 Instagram</div>
     <h1>محمل إنستقرام</h1>
     <p class="subtitle">حمّل الصور والفيديوهات والريلز بسهولة</p>
+    
+    <div class="supported-types">
+        <span class="type-badge">📷 الصور</span>
+        <span class="type-badge">🎬 الفيديو</span>
+        <span class="type-badge">🎞️ الريلز</span>
+        <span class="type-badge">📸 الألبومات</span>
+    </div>
 
-```
-<div class="supported-types">
-    <span class="type-badge">📷 الصور</span>
-    <span class="type-badge">🎬 الفيديو</span>
-    <span class="type-badge">🎞️ الريلز</span>
-    <span class="type-badge">📸 الألبومات</span>
-</div>
+    <div class="input-group">
+        <input type="text" id="urlInput" placeholder="الصق رابط المنشور هنا...">
+    </div>
+    <button id="downloadBtn" onclick="startDownload()">🚀 تحميل الآن</button>
 
-<div class="input-group">
-    <input type="text" id="urlInput" placeholder="الصق رابط المنشور هنا...">
-</div>
-<button id="downloadBtn" onclick="startDownload()">🚀 تحميل الآن</button>
-
-<div id="result"></div>
-```
-
+    <div id="result"></div>
 </div>
 
 <script>
-    // رابط الـ Worker - استبدله برابط الـ Worker الخاص بك
-    const WORKER_URL = 'https://instagram-downloader.nasralhrby370.workers.dev';
+    // ✅ رابط الـ Worker المحدّث
+    const WORKER_URL = 'https://instagram-dl-new.nasralhrby370.workers.dev';
 
     async function startDownload() {
         const urlInput = document.getElementById('urlInput');
@@ -273,7 +269,7 @@
 
             const resData = await response.json();
             
-            // عرض بيانات التشخيص (اختياري - يمكن إزالته لاحقاً)
+            // عرض بيانات التشخيص
             console.log("📊 استجابة الـ API:", JSON.stringify(resData, null, 2));
             
             resultDiv.innerHTML = "";
@@ -287,118 +283,114 @@
                 <div class="debug-info" style="display: none;">
                     <strong>البيانات المستلمة:</strong><br>
                     <pre>${JSON.stringify(resData, null, 2)}</pre>
-
-```
-            </div>
-        `;
-        resultDiv.appendChild(debugDiv);
-
-        let mediaItems = [];
-
-        // معالجة الاستجابة
-        if (resData.error) {
-            throw new Error(resData.message || resData.error);
-        }
-
-        if (resData.data) {
-            const data = resData.data;
-
-            // فيديو واحد
-            if (data.video_url) {
-                mediaItems.push({
-                    url: data.video_url,
-                    type: 'video',
-                    thumbnail: data.thumbnail_url
-                });
-            }
-            // صورة واحدة
-            else if (data.display_url && !data.carousel_media) {
-                mediaItems.push({
-                    url: data.display_url,
-                    type: 'image'
-                });
-            }
-            // كاروسيل
-            else if (data.carousel_media && Array.isArray(data.carousel_media)) {
-                data.carousel_media.forEach(item => {
-                    mediaItems.push({
-                        url: item.video_url || item.display_url,
-                        type: item.video_url ? 'video' : 'image',
-                        thumbnail: item.display_url
-                    });
-                });
-            }
-        }
-
-        // عرض النتائج
-        if (mediaItems.length > 0) {
-            resultDiv.innerHTML += '<div class="success-msg">✅ تم جلب الميديا بنجاح!</div>';
-            
-            mediaItems.forEach((item, index) => {
-                const typeLabel = item.type === 'video' ? "فيديو 🎬" : "صورة 📷";
-                const counter = mediaItems.length > 1 ? ` (${index + 1}/${mediaItems.length})` : '';
-                
-                let cardHTML = `
-                    <div class="media-card">
-                        <span class="media-type">${typeLabel}${counter}</span>
-                `;
-                
-                // عرض معاينة
-                if (item.type === 'image') {
-                    cardHTML += `<img src="${item.url}" class="preview-img" alt="معاينة">`;
-                } else if (item.thumbnail) {
-                    cardHTML += `<img src="${item.thumbnail}" class="preview-img" alt="معاينة الفيديو">`;
-                }
-                
-                cardHTML += `
-                        <a href="${item.url}" target="_blank" class="download-btn" download>
-                            💾 تحميل ${item.type === 'video' ? 'الفيديو' : 'الصورة'}
-                        </a>
-                    </div>
-                `;
-                
-                resultDiv.innerHTML += cardHTML;
-            });
-        } else {
-            resultDiv.innerHTML += `
-                <div class="error-msg">
-                    <strong>⚠️ لم نجد ميديا في هذا الرابط</strong>
-                    <p style="margin-top: 10px; font-size: 14px;">الأسباب المحتملة:</p>
-                    <ul style="text-align: right; font-size: 13px; margin-top: 10px;">
-                        <li>الحساب خاص (Private) - يجب أن يكون عام</li>
-                        <li>المنشور محذوف أو غير موجود</li>
-                        <li>الرابط غير صحيح</li>
-                        <li>مشكلة مؤقتة في الخدمة</li>
-                    </ul>
                 </div>
             `;
+            resultDiv.appendChild(debugDiv);
+
+            let mediaItems = [];
+
+            // معالجة الاستجابة
+            if (resData.error) {
+                throw new Error(resData.message || resData.error);
+            }
+
+            if (resData.data) {
+                const data = resData.data;
+
+                // فيديو واحد
+                if (data.video_url) {
+                    mediaItems.push({
+                        url: data.video_url,
+                        type: 'video',
+                        thumbnail: data.thumbnail_url
+                    });
+                }
+                // صورة واحدة
+                else if (data.display_url && !data.carousel_media) {
+                    mediaItems.push({
+                        url: data.display_url,
+                        type: 'image'
+                    });
+                }
+                // كاروسيل
+                else if (data.carousel_media && Array.isArray(data.carousel_media)) {
+                    data.carousel_media.forEach(item => {
+                        mediaItems.push({
+                            url: item.video_url || item.display_url,
+                            type: item.video_url ? 'video' : 'image',
+                            thumbnail: item.display_url
+                        });
+                    });
+                }
+            }
+
+            // عرض النتائج
+            if (mediaItems.length > 0) {
+                resultDiv.innerHTML += '<div class="success-msg">✅ تم جلب الميديا بنجاح!</div>';
+                
+                mediaItems.forEach((item, index) => {
+                    const typeLabel = item.type === 'video' ? "فيديو 🎬" : "صورة 📷";
+                    const counter = mediaItems.length > 1 ? ` (${index + 1}/${mediaItems.length})` : '';
+                    
+                    let cardHTML = `
+                        <div class="media-card">
+                            <span class="media-type">${typeLabel}${counter}</span>
+                    `;
+                    
+                    // عرض معاينة
+                    if (item.type === 'image') {
+                        cardHTML += `<img src="${item.url}" class="preview-img" alt="معاينة">`;
+                    } else if (item.thumbnail) {
+                        cardHTML += `<img src="${item.thumbnail}" class="preview-img" alt="معاينة الفيديو">`;
+                    }
+                    
+                    cardHTML += `
+                            <a href="${item.url}" target="_blank" class="download-btn" download>
+                                💾 تحميل ${item.type === 'video' ? 'الفيديو' : 'الصورة'}
+                            </a>
+                        </div>
+                    `;
+                    
+                    resultDiv.innerHTML += cardHTML;
+                });
+            } else {
+                resultDiv.innerHTML += `
+                    <div class="error-msg">
+                        <strong>⚠️ لم نجد ميديا في هذا الرابط</strong>
+                        <p style="margin-top: 10px; font-size: 14px;">الأسباب المحتملة:</p>
+                        <ul style="text-align: right; font-size: 13px; margin-top: 10px;">
+                            <li>الحساب خاص (Private) - يجب أن يكون عام</li>
+                            <li>المنشور محذوف أو غير موجود</li>
+                            <li>الرابط غير صحيح</li>
+                            <li>مشكلة مؤقتة في الخدمة</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+        } catch (error) {
+            console.error("❌ خطأ:", error);
+            resultDiv.innerHTML = `
+                <div class="error-msg">
+                    <strong>❌ حدث خطأ</strong>
+                    <p style="margin-top: 10px;">${error.message}</p>
+                    <p style="font-size: 12px; margin-top: 10px; color: #666;">
+                        تأكد من اتصالك بالإنترنت وصحة الرابط، ثم حاول مرة أخرى
+                    </p>
+                </div>
+            `;
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = "🚀 تحميل الآن";
         }
-
-    } catch (error) {
-        console.error("❌ خطأ:", error);
-        resultDiv.innerHTML = `
-            <div class="error-msg">
-                <strong>❌ حدث خطأ</strong>
-                <p style="margin-top: 10px;">${error.message}</p>
-                <p style="font-size: 12px; margin-top: 10px; color: #666;">
-                    تأكد من اتصالك بالإنترنت وصحة الرابط، ثم حاول مرة أخرى
-                </p>
-            </div>
-        `;
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = "🚀 تحميل الآن";
     }
-}
 
-// السماح بالضغط على Enter للتحميل
-document.getElementById('urlInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        startDownload();
-    }
-});
-```
-
+    // السماح بالضغط على Enter للتحميل
+    document.getElementById('urlInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            startDownload();
+        }
+    });
 </script>
 
 </body>
