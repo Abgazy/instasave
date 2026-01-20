@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محمل فيديوهات إنستقرام</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fafafa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 90%; max-width: 450px; text-align: center; border: 1px solid #dbdbdb; }
+        h2 { color: #262626; margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; margin: 15px 0; border: 1px solid #dbdbdb; border-radius: 10px; box-sizing: border-box; background: #fafafa; font-size: 14px; }
+        button { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; border: none; padding: 14px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: opacity 0.3s; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result { margin-top: 25px; }
+        .video-card { border: 1px solid #efefef; padding: 15px; border-radius: 12px; background: #fff; animation: fadeIn 0.5s ease-in; }
+        .download-btn { display: inline-block; margin-top: 15px; background: #0095f6; color: white; text-decoration: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; width: 100%; box-sizing: border-box; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>انستقرام داونلودر</h2>
+    <p style="color: #8e8e8e; font-size: 14px;">استخدم الروابط العادية أو الهايلايت</p>
+    
+    <input type="text" id="urlInput" placeholder="الصق الرابط هنا...">
+    <button id="downloadBtn" onclick="handleDownload()">جلب الفيديو</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    async function handleDownload() {
+        const urlInput = document.getElementById('urlInput').value.trim();
+        const resultDiv = document.getElementById('result');
+        const btn = document.getElementById('downloadBtn');
+
+        if (!urlInput) {
+            alert("يرجى وضع الرابط أولاً");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "جاري المعالجة الذكية...";
+        resultDiv.innerHTML = `<p style="color: #666;">⏳ جاري تحويل الرابط وجلب البيانات...</p>`;
+
+        try {
+            // استخدام رابط الـ Worker الخاص بك مباشرة
+            const response = await fetch('https://instagram-downloader.nasralhrby370.workers.dev', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: urlInput })
+            });
+
+            const data = await response.json();
+
+            // فحص البيانات القادمة من API 120
+            if (data && data.links && data.links.length > 0) {
+                const videoUrl = data.links[0].link;
+                resultDiv.innerHTML = `
+                    <div class="video-card">
+                        <p style="color: #28a745; font-weight: bold;">✨ جاهز للتحميل!</p>
+                        <a href="${videoUrl}" target="_blank" class="download-btn">تحميل الآن</a>
+                        <p style="font-size: 11px; color: #999; margin-top: 10px;">إذا فتح الفيديو في صفحة جديدة، اضغط مطولاً ثم اختر "حفظ الفيديو"</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <p style="color: #ed4956;">❌ لم نتمكن من العثور على ميديا.</p>
+                    <p style="font-size: 12px; color: #666;">تأكد أن الحساب عام (Public) وليس خاصاً.</p>
+                `;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<p style="color: #ed4956;">⚠️ خطأ: تأكد من أن الـ Worker يعمل بشكل صحيح.</p>`;
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "جلب الفيديو";
+        }
+    }
+</script>
+
+</body>
+</html>
