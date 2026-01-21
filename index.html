@@ -37,7 +37,6 @@
             transition: all 0.3s; box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
         }
         button:hover { transform: translateY(-2px); }
-        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         .spinner {
             border: 4px solid #f3f3f3; border-top: 4px solid #bc1888;
             border-radius: 50%; width: 40px; height: 40px;
@@ -51,9 +50,8 @@
         .download-btn { 
             display: block; background-color: #0095f6; color: white; 
             text-decoration: none; padding: 12px; border-radius: 10px; 
-            margin-top: 10px; font-weight: bold; text-align: center; transition: 0.2s;
+            margin-top: 10px; font-weight: bold; text-align: center;
         }
-        .download-btn:hover { background-color: #0077c8; }
         .preview-img { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #ddd; }
         .error-msg { background: #fee; border: 1px solid #fcc; color: #c33; padding: 15px; border-radius: 10px; margin-top: 20px; }
     </style>
@@ -73,7 +71,7 @@
 
 <script>
     const API_KEY = 'c107978669msh8c9b80d11a0150dp1b0b56jsn6b0f9128b487';
-    const API_HOST = 'instagram120.p.rapidapi.com';
+    const API_URL = 'https://instagram120.p.rapidapi.com/api/instagram/links';
 
     async function startDownload() {
         const urlInput = document.getElementById('urlInput');
@@ -86,69 +84,49 @@
             return;
         }
 
-        // تنظيف الرابط من زوائد التتبع لضمان قبول الـ API له
-        try {
-            const urlObj = new URL(url);
-            url = urlObj.origin + urlObj.pathname;
-        } catch(e) {
-            alert("❌ الرابط غير صحيح!");
-            return;
-        }
-
         btn.disabled = true;
         btn.innerHTML = "⏳ جاري الاستخراج...";
         resultDiv.innerHTML = '<div class="spinner"></div>';
 
         try {
-            const response = await fetch(`https://${API_HOST}/api/instagram/get?url=${encodeURIComponent(url)}`, {
-                method: 'GET',
+            const response = await fetch(API_URL, {
+                method: 'POST',
                 headers: {
-                    'x-rapidapi-host': API_HOST,
+                    'Content-Type': 'application/json',
+                    'x-rapidapi-host': 'instagram120.p.rapidapi.com',
                     'x-rapidapi-key': API_KEY
-                }
+                },
+                body: JSON.stringify({ url: url })
             });
-
-            if (!response.ok) throw new Error("مشكلة في الاتصال بالخادم");
 
             const resData = await response.json();
             resultDiv.innerHTML = "";
             let mediaFound = false;
 
             // دالة مساعدة لإنشاء بطاقة التحميل
-            const createCard = (downloadUrl, thumbUrl, isVideo) => {
+            const createCard = (downloadUrl, isVideo) => {
                 mediaFound = true;
                 const typeLabel = isVideo ? 'فيديو 🎬' : 'صورة 📷';
                 resultDiv.innerHTML += `
                     <div class="media-card">
-                        <span style="font-size:12px; color:#666;">تم العثور على: ${typeLabel}</span>
-                        <img src="${thumbUrl || downloadUrl}" class="preview-img" onerror="this.src='https://via.placeholder.com/300x200?text=Preview'">
+                        <span style="font-size:12px; color:#666;">تم العثور على رابط مباشر</span>
                         <a href="${downloadUrl}" target="_blank" class="download-btn">💾 حفظ ${typeLabel}</a>
                     </div>
                 `;
             };
 
-            // معالجة البيانات حسب الهيكلة الصحيحة (instagram120 تُرجع البيانات غالباً في جذور الكائن أو مصفوفة)
-            const data = resData.data || resData;
-
-            // 1. التعامل مع الألبومات (Carousel)
-            if (data.edge_sidecar_to_children && data.edge_sidecar_to_children.edges) {
-                data.edge_sidecar_to_children.edges.forEach(edge => {
-                    const node = edge.node;
-                    createCard(node.video_url || node.display_url, node.display_url, node.is_video);
+            // معالجة استجابة الـ API الجديد
+            // الـ API هذا يرجع مصفوفة روابط مباشرة في الغالب
+            if (resData.urls && resData.urls.length > 0) {
+                resData.urls.forEach(item => {
+                    createCard(item.url, item.type === 'video');
                 });
-            } 
-            // 2. فيديو منفرد أو Reel
-            else if (data.video_url) {
-                createCard(data.video_url, data.display_url || data.thumbnail_url, true);
-            } 
-            // 3. صورة منفردة
-            else if (data.display_url || data.image_url) {
-                const img = data.display_url || data.image_url;
-                createCard(img, img, false);
+            } else if (resData.url) {
+                createCard(resData.url, url.includes('/reels/') || url.includes('/tv/'));
             }
 
             if (!mediaFound) {
-                throw new Error("تأكد أن الحساب عام وليس خاص (Private).");
+                throw new Error("لم يتم العثور على روابط. تأكد من صحة الرابط.");
             }
 
         } catch (error) {
