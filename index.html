@@ -57,7 +57,8 @@
 </div>
 
 <script>
-    const WORKER_URL = 'https://Insta-downloader.nasralhrby370.workers.dev';
+    // رابط الـ Worker الجديد
+    const WORKER_URL = 'https://a.nasralhrby370.workers.dev';
 
     function handlePaste(e) {
         e.preventDefault();
@@ -92,7 +93,6 @@
             const resData = await response.json();
             loadingDiv.style.display = 'none';
             
-            // تحسين معالجة بيانات الـ API لضمان استخراج الروابط
             let items = [];
             if (resData.urls) items = resData.urls;
             else if (resData.url) items = [{url: resData.url, type: resData.type}];
