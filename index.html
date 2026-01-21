@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محمل إنستقرام الاحترافي</title>
     <style>
-        /* حافظت على التصميم الجميل الخاص بك مع تحسينات طفيفة */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -28,6 +27,7 @@
         input { 
             width: 100%; padding: 18px 20px; border: 2px solid #e9ecef; 
             border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f8f9fa;
+            text-align: left; direction: ltr;
         }
         input:focus { border-color: #bc1888; outline: none; background: white; }
         button { 
@@ -37,8 +37,9 @@
             transition: all 0.3s; box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
         }
         button:hover { transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         .spinner {
-            border: 3px solid #f3f3f3; border-top: 3px solid #bc1888;
+            border: 4px solid #f3f3f3; border-top: 4px solid #bc1888;
             border-radius: 50%; width: 40px; height: 40px;
             animation: spin 1s linear infinite; margin: 20px auto;
         }
@@ -50,9 +51,10 @@
         .download-btn { 
             display: block; background-color: #0095f6; color: white; 
             text-decoration: none; padding: 12px; border-radius: 10px; 
-            margin-top: 10px; font-weight: bold; text-align: center; 
+            margin-top: 10px; font-weight: bold; text-align: center; transition: 0.2s;
         }
-        .preview-img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
+        .download-btn:hover { background-color: #0077c8; }
+        .preview-img { max-width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #ddd; }
         .error-msg { background: #fee; border: 1px solid #fcc; color: #c33; padding: 15px; border-radius: 10px; margin-top: 20px; }
     </style>
 </head>
@@ -77,10 +79,19 @@
         const urlInput = document.getElementById('urlInput');
         const resultDiv = document.getElementById('result');
         const btn = document.getElementById('downloadBtn');
-        const url = urlInput.value.trim();
+        let url = urlInput.value.trim();
 
         if (!url) {
             alert("❌ من فضلك أدخل الرابط أولاً!");
+            return;
+        }
+
+        // تنظيف الرابط من زوائد التتبع لضمان قبول الـ API له
+        try {
+            const urlObj = new URL(url);
+            url = urlObj.origin + urlObj.pathname;
+        } catch(e) {
+            alert("❌ الرابط غير صحيح!");
             return;
         }
 
@@ -97,9 +108,9 @@
                 }
             });
 
-            const resData = await response.json();
-            console.log("Response:", resData); // للتأكد من هيكلة البيانات في المتصفح
+            if (!response.ok) throw new Error("مشكلة في الاتصال بالخادم");
 
+            const resData = await response.json();
             resultDiv.innerHTML = "";
             let mediaFound = false;
 
@@ -109,32 +120,35 @@
                 const typeLabel = isVideo ? 'فيديو 🎬' : 'صورة 📷';
                 resultDiv.innerHTML += `
                     <div class="media-card">
-                        <span style="font-size:12px; color:#666;">النوع: ${typeLabel}</span>
+                        <span style="font-size:12px; color:#666;">تم العثور على: ${typeLabel}</span>
                         <img src="${thumbUrl || downloadUrl}" class="preview-img" onerror="this.src='https://via.placeholder.com/300x200?text=Preview'">
-                        <a href="${downloadUrl}" target="_blank" download class="download-btn">💾 حفظ ${typeLabel}</a>
+                        <a href="${downloadUrl}" target="_blank" class="download-btn">💾 حفظ ${typeLabel}</a>
                     </div>
                 `;
             };
 
-            // معالجة البيانات بناءً على هيكلة الـ API (instagram120)
-            // الحالة 1: ألبوم (Carousel/Sidecar)
-            if (resData.edge_sidecar_to_children && resData.edge_sidecar_to_children.edges) {
-                resData.edge_sidecar_to_children.edges.forEach(edge => {
+            // معالجة البيانات حسب الهيكلة الصحيحة (instagram120 تُرجع البيانات غالباً في جذور الكائن أو مصفوفة)
+            const data = resData.data || resData;
+
+            // 1. التعامل مع الألبومات (Carousel)
+            if (data.edge_sidecar_to_children && data.edge_sidecar_to_children.edges) {
+                data.edge_sidecar_to_children.edges.forEach(edge => {
                     const node = edge.node;
                     createCard(node.video_url || node.display_url, node.display_url, node.is_video);
                 });
             } 
-            // الحالة 2: فيديو منفرد أو Reel
-            else if (resData.video_url) {
-                createCard(resData.video_url, resData.display_url || resData.thumbnail_url, true);
+            // 2. فيديو منفرد أو Reel
+            else if (data.video_url) {
+                createCard(data.video_url, data.display_url || data.thumbnail_url, true);
             } 
-            // الحالة 3: صورة منفردة
-            else if (resData.display_url || resData.image_url) {
-                createCard(resData.display_url || resData.image_url, resData.display_url || resData.image_url, false);
+            // 3. صورة منفردة
+            else if (data.display_url || data.image_url) {
+                const img = data.display_url || data.image_url;
+                createCard(img, img, false);
             }
 
             if (!mediaFound) {
-                throw new Error("لم نتمكن من العثور على روابط تحميل. تأكد أن الحساب عام (Public).");
+                throw new Error("تأكد أن الحساب عام وليس خاص (Private).");
             }
 
         } catch (error) {
