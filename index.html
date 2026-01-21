@@ -74,7 +74,9 @@
         const urlInput = document.getElementById('urlInput');
         const resultDiv = document.getElementById('result');
         const btn = document.getElementById('downloadBtn');
-        let url = urlInput.value.trim();
+        
+        // --- هنا التعديل: تنظيف الرابط من المسافات المخفية ---
+        let url = urlInput.value.trim(); 
 
         if (!url) {
             alert("❌ من فضلك أدخل الرابط أولاً!");
@@ -86,7 +88,6 @@
         resultDiv.innerHTML = '<div class="spinner"></div>';
 
         try {
-            // استدعاء ملف الـ PHP الوسيط
             const response = await fetch('api.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -97,7 +98,6 @@
             resultDiv.innerHTML = "";
             let items = [];
 
-            // Parsing لجميع الحالات (ألبوم أو ملف مفرد)
             if (resData.urls && Array.isArray(resData.urls)) {
                 items = resData.urls;
             } else if (resData.url) {
