@@ -1,243 +1,8 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محمل إنستقرام الاحترافي</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            padding: 20px;
-        }
-        .container { 
-            background: white; 
-            padding: 40px 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
-            width: 100%; 
-            max-width: 500px; 
-            text-align: center; 
-        }
-        .logo {
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 32px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        h1 { 
-            color: #1c1e21; 
-            font-size: 24px; 
-            margin-bottom: 10px; 
-        }
-        .subtitle {
-            color: #65676b;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        input { 
-            width: 100%; 
-            padding: 18px 20px; 
-            border: 2px solid #e9ecef; 
-            border-radius: 12px; 
-            font-size: 16px; 
-            transition: all 0.3s;
-            background: #f8f9fa;
-        }
-        input:focus { 
-            border-color: #bc1888; 
-            outline: none;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(188, 24, 136, 0.1);
-        }
-        button { 
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
-            color: white; 
-            border: none; 
-            padding: 18px 30px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            width: 100%; 
-            font-size: 18px; 
-            font-weight: bold; 
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(188, 24, 136, 0.4);
-        }
-        button:active { 
-            transform: scale(0.98); 
-        }
-        button:disabled { 
-            background: #ccc; 
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        #result { 
-            margin-top: 30px; 
-        }
-        .loading {
-            display: inline-block;
-            padding: 20px;
-            color: #bc1888;
-            font-weight: bold;
-        }
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #bc1888;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .media-card { 
-            background: #f8f9fa; 
-            border: 1px solid #e9ecef; 
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 15px; 
-            text-align: right;
-            transition: all 0.3s;
-        }
-        .media-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .download-btn { 
-            display: inline-block; 
-            background-color: #0095f6; 
-            color: white; 
-            text-decoration: none; 
-            padding: 12px 25px; 
-            border-radius: 10px; 
-            margin-top: 15px; 
-            font-weight: bold; 
-            width: 100%; 
-            text-align: center; 
-            transition: all 0.3s;
-        }
-        .download-btn:hover {
-            background-color: #0081d6;
-            transform: translateY(-2px);
-        }
-        .media-type { 
-            font-size: 13px; 
-            color: #65676b; 
-            text-transform: uppercase; 
-            font-weight: bold; 
-            margin-bottom: 10px; 
-            display: block; 
-        }
-        .preview-img { 
-            max-width: 100%; 
-            border-radius: 10px; 
-            margin: 15px 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .error-msg {
-            background: #fee;
-            border: 1px solid #fcc;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .success-msg {
-            background: #efe;
-            border: 1px solid #cfc;
-            color: #3c3;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .debug-toggle { 
-            background: #e9ecef; 
-            padding: 10px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            margin: 15px 0; 
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-        .debug-toggle:hover { 
-            background: #dee2e6; 
-        }
-        .debug-info { 
-            background: #f8f9fa; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 10px 0; 
-            font-size: 12px; 
-            text-align: left; 
-            max-height: 300px; 
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-        }
-        .debug-info pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .supported-types {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        .type-badge {
-            background: #e9ecef;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin: 5px;
-            color: #495057;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="logo">📷 Instagram</div>
-    <h1>محمل إنستقرام</h1>
-    <p class="subtitle">حمّل الصور والفيديوهات والريلز بسهولة</p>
-    
-    <div class="supported-types">
-        <span class="type-badge">📷 الصور</span>
-        <span class="type-badge">🎬 الفيديو</span>
-        <span class="type-badge">🎞️ الريلز</span>
-        <span class="type-badge">📸 الألبومات</span>
-    </div>
-
-    <div class="input-group">
-        <input type="text" id="urlInput" placeholder="الصق رابط المنشور هنا...">
-    </div>
-    <button id="downloadBtn" onclick="startDownload()">🚀 تحميل الآن</button>
-
-    <div id="result"></div>
-</div>
-
 <script>
-    // ✅ رابط الـ Worker المحدّث
-    const WORKER_URL = 'https://instagram-dl-new.nasralhrby370.workers.dev';
+    // ✅ إعدادات الـ API الجديد (Direct Integration)
+    const API_URL = 'https://instagram120.p.rapidapi.com/api/instagram/get';
+    const API_KEY = 'c107978669msh8c9b80d11a0150dp1b0b56jsn6b0f9128b487';
+    const API_HOST = 'instagram120.p.rapidapi.com';
 
     async function startDownload() {
         const urlInput = document.getElementById('urlInput');
@@ -250,148 +15,92 @@
             return;
         }
 
-        // التحقق من أن الرابط من إنستقرام
-        if (!url.includes('instagram.com')) {
-            resultDiv.innerHTML = '<div class="error-msg">⚠️ الرجاء إدخال رابط من إنستقرام فقط</div>';
-            return;
-        }
-
         btn.disabled = true;
-        btn.innerHTML = "⏳ جاري المعالجة...";
-        resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>انتظر قليلاً، جاري جلب الميديا...</div>';
+        btn.innerHTML = "⏳ جاري الاستخراج...";
+        resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>جاري الاتصال بـ Instagram API...</div>';
 
         try {
-            const response = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
+            // تنفيذ الطلب مباشرة للـ API باستخدام الـ Query Params
+            const response = await fetch(`${API_URL}?url=${encodeURIComponent(url)}`, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-host': API_HOST,
+                    'x-rapidapi-key': API_KEY
+                }
             });
 
+            if (!response.ok) throw new Error('فشل الاتصال بالـ API');
+
             const resData = await response.json();
-            
-            // عرض بيانات التشخيص
-            console.log("📊 استجابة الـ API:", JSON.stringify(resData, null, 2));
-            
+            console.log("📊 API Response:", resData);
+
             resultDiv.innerHTML = "";
-
-            // إضافة زر التشخيص
-            const debugDiv = document.createElement('div');
-            debugDiv.innerHTML = `
-                <div class="debug-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                    🔧 عرض تفاصيل الاستجابة (للتشخيص)
-                </div>
-                <div class="debug-info" style="display: none;">
-                    <strong>البيانات المستلمة:</strong><br>
-                    <pre>${JSON.stringify(resData, null, 2)}</pre>
-                </div>
-            `;
-            resultDiv.appendChild(debugDiv);
-
             let mediaItems = [];
 
-            // معالجة الاستجابة
-            if (resData.error) {
-                throw new Error(resData.message || resData.error);
-            }
-
-            if (resData.data) {
-                const data = resData.data;
-
-                // فيديو واحد
-                if (data.video_url) {
-                    mediaItems.push({
-                        url: data.video_url,
-                        type: 'video',
-                        thumbnail: data.thumbnail_url
-                    });
+            // 🛠️ خريطة معالجة البيانات بناءً على استجابة instagram120
+            // ملاحظة: هذا الـ API غالباً يرجع فيديو أو صورة مباشرة
+            if (resData) {
+                // حالة الفيديو (Reel/Video)
+                if (resData.video_url || (resData.data && resData.data.video_url)) {
+                    const vid = resData.video_url || resData.data.video_url;
+                    const thumb = resData.thumbnail_url || (resData.data && resData.data.thumbnail_url);
+                    mediaItems.push({ url: vid, type: 'video', thumbnail: thumb });
+                } 
+                // حالة الصور الفردية
+                else if (resData.image_url || (resData.data && resData.data.image_url)) {
+                    const img = resData.image_url || resData.data.image_url;
+                    mediaItems.push({ url: img, type: 'image' });
                 }
-                // صورة واحدة
-                else if (data.display_url && !data.carousel_media) {
-                    mediaItems.push({
-                        url: data.display_url,
-                        type: 'image'
-                    });
-                }
-                // كاروسيل
-                else if (data.carousel_media && Array.isArray(data.carousel_media)) {
-                    data.carousel_media.forEach(item => {
+                // حالة الألبوم (Carousel)
+                else if (resData.combined_media || (resData.data && resData.data.combined_media)) {
+                    const items = resData.combined_media || resData.data.combined_media;
+                    items.forEach(item => {
                         mediaItems.push({
-                            url: item.video_url || item.display_url,
+                            url: item.video_url || item.image_url,
                             type: item.video_url ? 'video' : 'image',
-                            thumbnail: item.display_url
+                            thumbnail: item.image_url
                         });
                     });
                 }
             }
 
-            // عرض النتائج
             if (mediaItems.length > 0) {
-                resultDiv.innerHTML += '<div class="success-msg">✅ تم جلب الميديا بنجاح!</div>';
-                
-                mediaItems.forEach((item, index) => {
-                    const typeLabel = item.type === 'video' ? "فيديو 🎬" : "صورة 📷";
-                    const counter = mediaItems.length > 1 ? ` (${index + 1}/${mediaItems.length})` : '';
-                    
-                    let cardHTML = `
-                        <div class="media-card">
-                            <span class="media-type">${typeLabel}${counter}</span>
-                    `;
-                    
-                    // عرض معاينة
-                    if (item.type === 'image') {
-                        cardHTML += `<img src="${item.url}" class="preview-img" alt="معاينة">`;
-                    } else if (item.thumbnail) {
-                        cardHTML += `<img src="${item.thumbnail}" class="preview-img" alt="معاينة الفيديو">`;
-                    }
-                    
-                    cardHTML += `
-                            <a href="${item.url}" target="_blank" class="download-btn" download>
-                                💾 تحميل ${item.type === 'video' ? 'الفيديو' : 'الصورة'}
-                            </a>
-                        </div>
-                    `;
-                    
-                    resultDiv.innerHTML += cardHTML;
-                });
+                renderResults(mediaItems, resData);
             } else {
-                resultDiv.innerHTML += `
-                    <div class="error-msg">
-                        <strong>⚠️ لم نجد ميديا في هذا الرابط</strong>
-                        <p style="margin-top: 10px; font-size: 14px;">الأسباب المحتملة:</p>
-                        <ul style="text-align: right; font-size: 13px; margin-top: 10px;">
-                            <li>الحساب خاص (Private) - يجب أن يكون عام</li>
-                            <li>المنشور محذوف أو غير موجود</li>
-                            <li>الرابط غير صحيح</li>
-                            <li>مشكلة مؤقتة في الخدمة</li>
-                        </ul>
-                    </div>
-                `;
+                throw new Error("لم نتمكن من العثور على روابط تحميل. تأكد أن الحساب عام.");
             }
 
         } catch (error) {
-            console.error("❌ خطأ:", error);
-            resultDiv.innerHTML = `
-                <div class="error-msg">
-                    <strong>❌ حدث خطأ</strong>
-                    <p style="margin-top: 10px;">${error.message}</p>
-                    <p style="font-size: 12px; margin-top: 10px; color: #666;">
-                        تأكد من اتصالك بالإنترنت وصحة الرابط، ثم حاول مرة أخرى
-                    </p>
-                </div>
-            `;
+            resultDiv.innerHTML = `<div class="error-msg"><strong>❌ خطأ:</strong> ${error.message}</div>`;
         } finally {
             btn.disabled = false;
             btn.innerHTML = "🚀 تحميل الآن";
         }
     }
 
-    // السماح بالضغط على Enter للتحميل
-    document.getElementById('urlInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            startDownload();
-        }
-    });
-</script>
+    function renderResults(items, fullData) {
+        const resultDiv = document.getElementById('result');
+        
+        // زر التشخيص (Debug)
+        resultDiv.innerHTML = `
+            <div class="debug-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+                🔧 عرض البيانات الخام (JSON)
+            </div>
+            <div class="debug-info" style="display: none;"><pre>${JSON.stringify(fullData, null, 2)}</pre></div>
+            <div class="success-msg">✅ جاهز للتحميل!</div>
+        `;
 
-</body>
-</html>
+        items.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'media-card';
+            const label = item.type === 'video' ? 'فيديو 🎬' : 'صورة 📷';
+            
+            card.innerHTML = `
+                <span class="media-type">${label}</span>
+                <img src="${item.thumbnail || item.url}" class="preview-img">
+                <a href="${item.url}" target="_blank" class="download-btn">💾 تحميل الآن</a>
+            `;
+            resultDiv.appendChild(card);
+        });
+    }
+</script>
