@@ -1,52 +1,33 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محمل إنستقرام</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: #121212; color: white;
-            display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; padding: 20px;
-        }
-        .container { 
-            background: #1e1e1e; padding: 25px 25px 80px 25px; border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; 
-            max-width: 500px; text-align: center; margin-top: 40px;
-            display: flex; flex-direction: column; position: relative;
-        }
-        .logo {
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-size: 32px; font-weight: bold; margin-bottom: 20px;
-        }
-        .input-area { position: relative; z-index: 50; width: 100%; display: flex; flex-direction: column; }
-        button#downloadBtn { 
-            order: 1; background: #bc1888; color: white; border: none; padding: 18px; 
-            border-radius: 12px; cursor: pointer; width: 100%; font-size: 18px; font-weight: bold; margin-bottom: 20px;
-        }
-        button#downloadBtn:disabled { background: #555; cursor: not-allowed; }
-        .hint-text { order: 2; margin-bottom: 10px; color: #aaa; font-size: 0.9em; }
-        input#urlInput { 
-            order: 3; width: 100%; padding: 18px; border: 2px solid #333; 
-            border-radius: 12px; font-size: 16px; text-align: left; direction: ltr; outline: none;
-            background: #2a2a2a; color: white;
-        }
-        .spinner { border: 4px solid #333; border-top: 4px solid #bc1888; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .media-card { background: #2a2a2a; border: 1px solid #333; padding: 15px; border-radius: 15px; margin-top: 15px; text-align: right; }
-        .download-btn-link { display: block; background-color: #0095f6; color: white; text-decoration: none; padding: 12px; border-radius: 10px; margin-top: 10px; font-weight: bold; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محمل إنستقرام</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Segoe UI', Tahoma, sans-serif; background:#121212; color:white; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:20px;}
+.container { background:#1e1e1e; padding:25px 25px 80px 25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5); width:100%; max-width:500px; text-align:center; margin-top:40px; display:flex; flex-direction:column; position:relative;}
+.logo { background: linear-gradient(45deg, #f09433,#e6683c,#dc2743,#cc2366,#bc1888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-size:32px; font-weight:bold; margin-bottom:20px;}
+.input-area { position:relative; z-index:50; width:100%; display:flex; flex-direction:column;}
+button#downloadBtn { order:1; background:#bc1888; color:white; border:none; padding:18px; border-radius:12px; cursor:pointer; width:100%; font-size:18px; font-weight:bold; margin-bottom:20px;}
+button#downloadBtn:disabled { background:#555; cursor:not-allowed;}
+.hint-text { order:2; margin-bottom:10px; color:#aaa; font-size:0.9em;}
+input#urlInput { order:3; width:100%; padding:18px; border:2px solid #333; border-radius:12px; font-size:16px; text-align:left; direction:ltr; outline:none; background:#2a2a2a; color:white;}
+.spinner { border:4px solid #333; border-top:4px solid #bc1888; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin:20px auto;}
+@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);}}
+.media-card { background:#2a2a2a; border:1px solid #333; padding:15px; border-radius:15px; margin-top:15px; text-align:right;}
+.download-btn-link { display:block; background-color:#0095f6; color:white; text-decoration:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; text-align:center;}
+.error-msg { color:#f44336; margin-bottom:15px;}
+.warn-msg { color:#ff9800; margin-bottom:15px;}
+.info-msg { color:#00e676; margin-bottom:15px;}
+</style>
 </head>
 <body>
 
 <div class="container">
     <div class="logo">📷 Instagram</div>
-    
-    <div id="loading" style="display: none;"><div class="spinner"></div></div>
+    <div id="loading" style="display:none;"><div class="spinner"></div></div>
     <div id="result"></div>
 
     <div class="input-area">
@@ -57,68 +38,76 @@
 </div>
 
 <script>
-    // رابط الـ Worker الجديد
-    const WORKER_URL = 'https://a.nasralhrby370.workers.dev';
+const WORKER_URL = 'https://a.nasralhrby370.workers.dev';
 
-    function handlePaste(e) {
-        e.preventDefault();
-        let text = (e.clipboardData || window.clipboardData).getData('text');
-        let cleanedUrl = text.replace(/[\u0600-\u06FF]/g, '').trim();
-        document.getElementById('urlInput').value = cleanedUrl;
-    }
+function handlePaste(e){
+    e.preventDefault();
+    let text = (e.clipboardData || window.clipboardData).getData('text');
+    document.getElementById('urlInput').value = text.replace(/[\u0600-\u06FF]/g,'').trim();
+}
 
-    async function startDownload() {
-        const urlInput = document.getElementById('urlInput');
-        const resultDiv = document.getElementById('result');
-        const loadingDiv = document.getElementById('loading');
-        const btn = document.getElementById('downloadBtn');
-        
-        let url = urlInput.value.trim(); 
-        if (!url) { alert("❌ أدخل الرابط!"); return; }
+async function startDownload(){
+    const urlInput = document.getElementById('urlInput');
+    const resultDiv = document.getElementById('result');
+    const loadingDiv = document.getElementById('loading');
+    const btn = document.getElementById('downloadBtn');
+    
+    let url = urlInput.value.trim();
+    if(!url){ alert("❌ أدخل الرابط!"); return; }
 
-        btn.disabled = true;
-        btn.innerHTML = "جاري الاتصال بالسيرفر...";
-        loadingDiv.style.display = 'block';
-        resultDiv.innerHTML = "";
+    btn.disabled = true;
+    btn.innerHTML="جاري الاتصال بالسيرفر...";
+    loadingDiv.style.display='block';
+    resultDiv.innerHTML='';
 
-        try {
-            const response = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
-            });
+    try{
+        const response = await fetch(WORKER_URL,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({url:url})
+        });
 
-            if (!response.ok) throw new Error('خطأ في استجابة الووكر');
-
-            const resData = await response.json();
-            loadingDiv.style.display = 'none';
-            
-            let items = [];
-            if (resData.urls) items = resData.urls;
-            else if (resData.url) items = [{url: resData.url, type: resData.type}];
-            else if (Array.isArray(resData)) items = resData;
-
-            if (items.length === 0) {
-                resultDiv.innerHTML = `<p style="color:#ff9800; margin-bottom:15px;">⚠️ لم يتم العثور على روابط مباشرة، تأكد أن الحساب عام.</p>`;
-            }
-
-            items.forEach((item, index) => {
-                let finalUrl = item.url || item;
-                resultDiv.innerHTML += `
-                    <div class="media-card">
-                        <span>رابط جاهز #${index + 1}</span>
-                        <a href="${finalUrl}" target="_blank" class="download-btn-link">⬇️ تحميل الآن</a>
-                    </div>`;
-            });
-
-        } catch (error) {
-            loadingDiv.style.display = 'none';
-            resultDiv.innerHTML = `<p style="color:#f44336; margin-bottom:15px;">❌ عذراً، فشل جلب البيانات. حاول مجدداً.</p>`;
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = "جلب المحتوى 🚀";
+        if(!response.ok){
+            resultDiv.innerHTML=`<p class="error-msg">❌ خطأ في الاتصال بالووركر (HTTP ${response.status})</p>`;
+            return;
         }
+
+        const resData = await response.json();
+        loadingDiv.style.display='none';
+
+        if(resData.error){
+            resultDiv.innerHTML=`<p class="error-msg">❌ ${resData.error}</p>`;
+            return;
+        }
+
+        let items=[];
+        if(resData.urls) items=resData.urls;
+        else if(resData.url) items=[{url:resData.url,type:resData.type}];
+        else if(Array.isArray(resData)) items=resData;
+
+        if(items.length===0){
+            resultDiv.innerHTML=`<p class="warn-msg">⚠️ لم يتم العثور على روابط مباشرة، تأكد أن الحساب عام.</p>`;
+            return;
+        }
+
+        items.forEach((item,index)=>{
+            let finalUrl=item.url||item;
+            resultDiv.innerHTML+=`
+                <div class="media-card">
+                    <span>رابط جاهز #${index+1}</span>
+                    <a href="${finalUrl}" target="_blank" class="download-btn-link">⬇️ تحميل الآن</a>
+                </div>`;
+        });
+
+    }catch(err){
+        loadingDiv.style.display='none';
+        resultDiv.innerHTML=`<p class="error-msg">❌ حدث خطأ: ${err.message}</p>`;
+    }finally{
+        btn.disabled=false;
+        btn.innerHTML="جلب المحتوى 🚀";
     }
+}
 </script>
+
 </body>
 </html>
