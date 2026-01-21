@@ -5,72 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محمل إنستقرام الاحترافي</title>
     <style>
+        /* التنسيق ونظام العزل المستوحى من موقع التيك توك */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px;
         }
-
-        /* تطبيق نظام العزل والمساحة السفلية من موقع التيك توك */
         .container { 
             background: white; padding: 25px 25px 80px 25px; border-radius: 20px; 
             box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; 
             max-width: 500px; text-align: center; margin-top: 40px;
             display: flex; flex-direction: column; position: relative;
         }
-
         .logo {
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text; font-size: 32px; font-weight: bold; margin-bottom: 10px;
+            font-size: 32px; font-weight: bold; margin-bottom: 10px;
         }
         h1 { color: #1c1e21; font-size: 24px; margin-bottom: 10px; }
-        .subtitle { color: #65676b; font-size: 14px; margin-bottom: 30px; }
 
-        /* منطقة الإدخال المعزولة */
-        .input-area {
-            position: relative; z-index: 50; background: white; 
-            width: 100%; display: flex; flex-direction: column;
-        }
-
-        /* استخدام خاصية order للعزل والترتيب كما في التيك توك */
+        /* منطقة الإدخال المعزولة لمنع التداخل مع الكيبورد */
+        .input-area { position: relative; z-index: 50; width: 100%; display: flex; flex-direction: column; }
+        
         button#downloadBtn { 
             order: 1; /* الزر أولاً */
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
             color: white; border: none; padding: 18px 30px; border-radius: 12px; 
             cursor: pointer; width: 100%; font-size: 18px; font-weight: bold; margin-bottom: 20px;
-            transition: all 0.3s; box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
+            transition: all 0.3s;
         }
-        .hint-text { order: 2; text-align: center; margin-bottom: 10px; color: #555; font-size: 0.9em; }
+        .hint-text { order: 2; margin-bottom: 10px; color: #555; font-size: 0.9em; }
         
         input#urlInput { 
-            order: 3; /* المربع في الأسفل معزول */
+            order: 3; /* المربع في الأسفل معزول تماماً */
             width: 100%; padding: 18px 20px; border: 2px solid #e9ecef; 
-            border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f8f9fa;
-            text-align: left; direction: ltr; outline: none;
+            border-radius: 12px; font-size: 16px; text-align: left; direction: ltr; outline: none;
+            background: #f8f9fa;
         }
         input#urlInput:focus { border-color: #bc1888; background: white; }
 
-        .spinner {
-            border: 4px solid #f3f3f3; border-top: 4px solid #bc1888;
-            border-radius: 50%; width: 40px; height: 40px;
-            animation: spin 1s linear infinite; margin: 20px auto;
-        }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #bc1888; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         .result-area { margin-top: 20px; width: 100%; }
-        .media-card { 
-            background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; 
-            border-radius: 15px; margin-top: 15px; text-align: right;
-        }
-        .download-btn-link { 
-            display: block; background-color: #0095f6; color: white; 
-            text-decoration: none; padding: 12px; border-radius: 10px; 
-            margin-top: 10px; font-weight: bold; text-align: center;
-        }
-        .error-msg { background: #fee; border: 1px solid #fcc; color: #c33; padding: 15px; border-radius: 10px; margin-top: 20px; }
+        .media-card { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 15px; margin-top: 15px; text-align: right; }
+        .download-btn-link { display: block; background-color: #0095f6; color: white; text-decoration: none; padding: 12px; border-radius: 10px; margin-top: 10px; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
@@ -78,7 +59,7 @@
 <div class="container">
     <div class="logo">📷 Instagram</div>
     <h1>محمل إنستقرام</h1>
-    <p class="subtitle">تحميل الفيديوهات، الصور، والـ Reels</p>
+    <p style="color:#666; font-size:14px; margin-bottom:20px;">تحميل الفيديوهات، الصور، والـ Reels</p>
     
     <div id="loading" style="display: none;"><div class="spinner"></div></div>
     <div id="result" class="result-area"></div>
@@ -86,16 +67,19 @@
     <div class="input-area">
         <button id="downloadBtn" onclick="startDownload()">🚀 ابدأ التحميل الآن</button>
         <p class="hint-text">الصق الرابط بالأسفل 👇</p>
-        <input type="text" id="urlInput" placeholder="الصق رابط Instagram هنا..." autocomplete="off" onpaste="handlePaste(event)">
+        <input type="text" id="urlInput" placeholder="الصق رابط Instagram هنا..." onpaste="handlePaste(event)">
     </div>
 </div>
 
 <script>
-    // وظيفة الـ handlePaste من موقع التيك توك لتنظيف الرابط فوراً
+    // رابط الووكر الخاص بك الذي يعمل كبديل لـ api.php
+    const WORKER_URL = 'https://Insta-downloader.nasralhrby370.workers.dev'; 
+
+    // وظيفة تنظيف الرابط من المسافات والنصوص فور اللصق
     function handlePaste(e) {
         e.preventDefault();
         let text = (e.clipboardData || window.clipboardData).getData('text');
-        // تنظيف الرابط من أي نصوص عربية أو مسافات زائدة
+        // إزالة النصوص العربية والمسافات الزائدة
         let cleanedUrl = text.replace(/[\u0600-\u06FF]/g, '').trim();
         document.getElementById('urlInput').value = cleanedUrl;
     }
@@ -107,11 +91,7 @@
         const btn = document.getElementById('downloadBtn');
         
         let url = urlInput.value.trim(); 
-
-        if (!url) {
-            alert("❌ من فضلك أدخل الرابط أولاً!");
-            return;
-        }
+        if (!url) { alert("❌ من فضلك أدخل الرابط أولاً!"); return; }
 
         btn.disabled = true;
         btn.innerHTML = "⏳ جاري الاستخراج...";
@@ -119,7 +99,7 @@
         resultDiv.innerHTML = "";
 
         try {
-            const response = await fetch('api.php', {
+            const response = await fetch(WORKER_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url: url })
@@ -127,31 +107,28 @@
 
             const resData = await response.json();
             loadingDiv.style.display = 'none';
+            
+            // معالجة الروابط سواء كانت فيديو واحد أو مجموعة صور (Carousel)
             let items = [];
-
             if (resData.urls && Array.isArray(resData.urls)) {
                 items = resData.urls;
             } else if (resData.url) {
                 items = [{ url: resData.url, type: resData.type || 'video' }];
             }
 
-            if (items.length === 0) throw new Error("لم نجد روابط تحميل!");
+            if (items.length === 0) throw new Error();
 
             items.forEach((item, index) => {
-                const isVideo = item.type === 'video' || url.includes('/reels/');
-                const typeLabel = isVideo ? 'فيديو 🎬' : 'صورة 📷';
-                
                 resultDiv.innerHTML += `
                     <div class="media-card">
-                        <span style="font-size:13px; color:#666;">تم العثور على ${typeLabel} #${index + 1}</span>
+                        <span>تم العثور على محتوى #${index + 1}</span>
                         <a href="${item.url}" target="_blank" class="download-btn-link">💾 حفظ الملف</a>
-                    </div>
-                `;
+                    </div>`;
             });
 
         } catch (error) {
             loadingDiv.style.display = 'none';
-            resultDiv.innerHTML = `<div class="error-msg"><strong>❌ خطأ:</strong> الرابط غير صحيح أو الحساب خاص.</div>`;
+            resultDiv.innerHTML = `<p style="color:red; margin-top:20px;">❌ خطأ في الرابط أو الحساب خاص.</p>`;
         } finally {
             btn.disabled = false;
             btn.innerHTML = "🚀 ابدأ التحميل الآن";
