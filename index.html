@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محمل إنستقرام الاحترافي</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex; justify-content: center; align-items: center; 
+            display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; padding: 20px;
         }
+
+        /* تطبيق نظام العزل والمساحة السفلية من موقع التيك توك */
         .container { 
-            background: white; padding: 40px 30px; border-radius: 20px; 
+            background: white; padding: 25px 25px 80px 25px; border-radius: 20px; 
             box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; 
-            max-width: 500px; text-align: center; 
+            max-width: 500px; text-align: center; margin-top: 40px;
+            display: flex; flex-direction: column; position: relative;
         }
+
         .logo {
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -24,31 +28,44 @@
         }
         h1 { color: #1c1e21; font-size: 24px; margin-bottom: 10px; }
         .subtitle { color: #65676b; font-size: 14px; margin-bottom: 30px; }
-        button { 
+
+        /* منطقة الإدخال المعزولة */
+        .input-area {
+            position: relative; z-index: 50; background: white; 
+            width: 100%; display: flex; flex-direction: column;
+        }
+
+        /* استخدام خاصية order للعزل والترتيب كما في التيك توك */
+        button#downloadBtn { 
+            order: 1; /* الزر أولاً */
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); 
             color: white; border: none; padding: 18px 30px; border-radius: 12px; 
             cursor: pointer; width: 100%; font-size: 18px; font-weight: bold; margin-bottom: 20px;
             transition: all 0.3s; box-shadow: 0 4px 15px rgba(188, 24, 136, 0.3);
         }
-        button:hover { transform: translateY(-2px); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        input { 
+        .hint-text { order: 2; text-align: center; margin-bottom: 10px; color: #555; font-size: 0.9em; }
+        
+        input#urlInput { 
+            order: 3; /* المربع في الأسفل معزول */
             width: 100%; padding: 18px 20px; border: 2px solid #e9ecef; 
             border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #f8f9fa;
-            text-align: left; direction: ltr;
+            text-align: left; direction: ltr; outline: none;
         }
-        input:focus { border-color: #bc1888; outline: none; background: white; }
+        input#urlInput:focus { border-color: #bc1888; background: white; }
+
         .spinner {
             border: 4px solid #f3f3f3; border-top: 4px solid #bc1888;
             border-radius: 50%; width: 40px; height: 40px;
             animation: spin 1s linear infinite; margin: 20px auto;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .result-area { margin-top: 20px; width: 100%; }
         .media-card { 
             background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; 
             border-radius: 15px; margin-top: 15px; text-align: right;
         }
-        .download-btn { 
+        .download-btn-link { 
             display: block; background-color: #0095f6; color: white; 
             text-decoration: none; padding: 12px; border-radius: 10px; 
             margin-top: 10px; font-weight: bold; text-align: center;
@@ -61,21 +78,34 @@
 <div class="container">
     <div class="logo">📷 Instagram</div>
     <h1>محمل إنستقرام</h1>
-    <p class="subtitle">تحميل الفيديوهات، الصور، الـ Reels، والـ Carousel</p>
+    <p class="subtitle">تحميل الفيديوهات، الصور، والـ Reels</p>
     
-    <button id="downloadBtn" onclick="startDownload()">🚀 تحميل الآن</button>
-    <input type="text" id="urlInput" placeholder="الصق رابط Instagram هنا...">
+    <div id="loading" style="display: none;"><div class="spinner"></div></div>
+    <div id="result" class="result-area"></div>
 
-    <div id="result"></div>
+    <div class="input-area">
+        <button id="downloadBtn" onclick="startDownload()">🚀 ابدأ التحميل الآن</button>
+        <p class="hint-text">الصق الرابط بالأسفل 👇</p>
+        <input type="text" id="urlInput" placeholder="الصق رابط Instagram هنا..." autocomplete="off" onpaste="handlePaste(event)">
+    </div>
 </div>
 
 <script>
+    // وظيفة الـ handlePaste من موقع التيك توك لتنظيف الرابط فوراً
+    function handlePaste(e) {
+        e.preventDefault();
+        let text = (e.clipboardData || window.clipboardData).getData('text');
+        // تنظيف الرابط من أي نصوص عربية أو مسافات زائدة
+        let cleanedUrl = text.replace(/[\u0600-\u06FF]/g, '').trim();
+        document.getElementById('urlInput').value = cleanedUrl;
+    }
+
     async function startDownload() {
         const urlInput = document.getElementById('urlInput');
         const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
         const btn = document.getElementById('downloadBtn');
         
-        // --- هنا التعديل: تنظيف الرابط من المسافات المخفية ---
         let url = urlInput.value.trim(); 
 
         if (!url) {
@@ -85,7 +115,8 @@
 
         btn.disabled = true;
         btn.innerHTML = "⏳ جاري الاستخراج...";
-        resultDiv.innerHTML = '<div class="spinner"></div>';
+        loadingDiv.style.display = 'block';
+        resultDiv.innerHTML = "";
 
         try {
             const response = await fetch('api.php', {
@@ -95,7 +126,7 @@
             });
 
             const resData = await response.json();
-            resultDiv.innerHTML = "";
+            loadingDiv.style.display = 'none';
             let items = [];
 
             if (resData.urls && Array.isArray(resData.urls)) {
@@ -113,16 +144,17 @@
                 resultDiv.innerHTML += `
                     <div class="media-card">
                         <span style="font-size:13px; color:#666;">تم العثور على ${typeLabel} #${index + 1}</span>
-                        <a href="${item.url}" target="_blank" class="download-btn">💾 حفظ الملف</a>
+                        <a href="${item.url}" target="_blank" class="download-btn-link">💾 حفظ الملف</a>
                     </div>
                 `;
             });
 
         } catch (error) {
+            loadingDiv.style.display = 'none';
             resultDiv.innerHTML = `<div class="error-msg"><strong>❌ خطأ:</strong> الرابط غير صحيح أو الحساب خاص.</div>`;
         } finally {
             btn.disabled = false;
-            btn.innerHTML = "🚀 تحميل الآن";
+            btn.innerHTML = "🚀 ابدأ التحميل الآن";
         }
     }
 </script>
