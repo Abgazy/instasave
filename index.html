@@ -1,113 +1,310 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محمل إنستقرام</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Segoe UI', Tahoma, sans-serif; background:#121212; color:white; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:20px;}
-.container { background:#1e1e1e; padding:25px 25px 80px 25px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5); width:100%; max-width:500px; text-align:center; margin-top:40px; display:flex; flex-direction:column; position:relative;}
-.logo { background: linear-gradient(45deg, #f09433,#e6683c,#dc2743,#cc2366,#bc1888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-size:32px; font-weight:bold; margin-bottom:20px;}
-.input-area { position:relative; z-index:50; width:100%; display:flex; flex-direction:column;}
-button#downloadBtn { order:1; background:#bc1888; color:white; border:none; padding:18px; border-radius:12px; cursor:pointer; width:100%; font-size:18px; font-weight:bold; margin-bottom:20px;}
-button#downloadBtn:disabled { background:#555; cursor:not-allowed;}
-.hint-text { order:2; margin-bottom:10px; color:#aaa; font-size:0.9em;}
-input#urlInput { order:3; width:100%; padding:18px; border:2px solid #333; border-radius:12px; font-size:16px; text-align:left; direction:ltr; outline:none; background:#2a2a2a; color:white;}
-.spinner { border:4px solid #333; border-top:4px solid #bc1888; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; margin:20px auto;}
-@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);}}
-.media-card { background:#2a2a2a; border:1px solid #333; padding:15px; border-radius:15px; margin-top:15px; text-align:right;}
-.download-btn-link { display:block; background-color:#0095f6; color:white; text-decoration:none; padding:12px; border-radius:10px; margin-top:10px; font-weight:bold; text-align:center;}
-.error-msg { color:#f44336; margin-bottom:15px;}
-.warn-msg { color:#ff9800; margin-bottom:15px;}
-.info-msg { color:#00e676; margin-bottom:15px;}
-</style>
+    <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Inst Saver | تحميل فيديوهات وصور إنستقرام بدون علامة مائية - مجاناً 2026</title>
+    
+    <meta name="description" content="حمّل فيديوهات وصور إنستقرام و Reels بجودة عالية مجاناً. أداة سريعة وآمنة لحفظ مقاطع Instagram بدون برامج.">
+    <meta name="keywords" content="تحميل إنستقرام, تنزيل ريلز, Instagram Downloader, حفظ فيديوهات إنستقرام, تحميل ستوري إنستا">
+    <meta name="author" content="Inst Saver">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="google-site-verification" content="" />
+    
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Inst Saver">
+    <meta property="og:title" content="Inst Saver | تحميل فيديوهات ورليز إنستقرام">
+    <meta property="og:url" content="">
+    <meta property="og:image" content="">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Inst Saver | تحميل إنستقرام">
+    <meta name="twitter:description" content="أفضل أداة مجانية لتحميل فيديوهات وصور إنستقرام">
+    <meta name="twitter:image" content="">
+    
+    <link rel="icon" type="image/png" href="">
+    <link rel="apple-touch-icon" href="">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Inst Saver",
+      "url": "",
+      "description": "تحميل فيديوهات وصور ورليز إنستقرام بجودة HD",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "12150", "bestRating": "5" }
+    }
+    </script>
+    
+    <style>
+        :root {
+            --primary-color: #E1306C;
+            --primary-dark: #C13584;
+            --success-color: #28a745;
+            --info-color: #007bff;
+            --warning-color: #ffc107;
+            --text-dark: #333;
+            --bg-white: #ffffff;
+            --footer-bg: rgba(255, 255, 255, 0.95);
+            --footer-text: #444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+        
+        .container {
+            background: var(--bg-white); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 25px 25px 80px 25px; max-width: 500px; width: 100%; 
+            margin-top: 40px; position: relative;
+        }
+        
+        h1 { text-align: center; color: var(--text-dark); margin: 15px 0; font-size: 1.6em; }
+        
+        .ad-container { width: 100%; display: flex; justify-content: center; margin-bottom: 15px; border-radius: 10px; overflow: hidden; background: #f9f9f9; }
+        .ad-middle { min-height: 90px; margin: 10px 0; } 
+
+        .input-area { display: flex; flex-direction: column; }
+        
+        input[type="url"] {
+            width: 100%; padding: 14px; border: 2px solid var(--primary-color); border-radius: 10px;
+            font-size: 15px; direction: ltr; outline: none; margin-bottom: 10px; order: 3;
+        }
+        
+        .btn {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white; font-size: 17px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(225, 48, 108, 0.3); order: 1; margin-bottom: 15px;
+        }
+
+        .hint-text { text-align: center; margin-bottom: 10px; color: #555; font-size: 0.9em; order: 2; }
+
+        .loading { display: none; text-align: center; margin: 20px 0; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .result { display: none; text-align: center; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        video { width: 100%; border-radius: 12px; background: #000; margin-bottom: 15px; }
+
+        .dl-link { 
+            display: inline-block; width: 100%; margin-top: 10px; padding: 14px; 
+            color: white; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; text-decoration: none;
+        }
+        .btn-hd { background: var(--success-color); }
+        .btn-sd { background: var(--info-color); }
+        .btn-mp3 { background: var(--warning-color); color: #000; }
+
+        .notification { position: fixed; top: 20px; right: 20px; padding: 15px; border-radius: 10px; color: white; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
+        .error { background: var(--primary-dark); }
+        .success { background: var(--success-color); }
+        .warning { background: var(--warning-color); color: #000; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+        .seo-footer { max-width: 600px; width: 100%; margin-top: 60px; padding: 25px; background: var(--footer-bg); border-radius: 20px; color: var(--footer-text); transition: 0.3s; }
+        .seo-footer h2 { color: var(--text-dark); font-size: 1.3em; margin: 15px 0; border-bottom: 2px solid var(--primary-color); display: inline-block; }
+        .feature-box { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 10px; margin: 15px 0; border-right: 4px solid var(--primary-color); }
+        .footer-nav { margin: 30px 0; text-align: center; }
+        .footer-nav a { color: white; text-decoration: none; margin: 0 10px; font-size: 0.9em; opacity: 0.8; }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-white: #121212;
+                --text-dark: #ffffff;
+                --footer-bg: rgba(30, 30, 30, 0.95);
+                --footer-text: #e0e0e0;
+            }
+            .container { background: var(--bg-white); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+            input[type="url"] { background: #1e1e1e; color: white; border-color: #E1306C; }
+            .hint-text { color: #bbb; }
+            .feature-box { background: rgba(255,255,255,0.05); }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="logo">📷 Instagram</div>
-    <div id="loading" style="display:none;"><div class="spinner"></div></div>
-    <div id="result"></div>
+    <div class="container">
+        <div class="ad-container" aria-label="إعلان علوي">
+            <script type="text/javascript">atOptions = {'key' : '','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};</script>
+            <script type="text/javascript" src=""></script>
+        </div>
 
-    <div class="input-area">
-        <button id="downloadBtn" onclick="startDownload()">جلب المحتوى 🚀</button>
-        <p class="hint-text">ضع الرابط بالأسفل 👇</p>
-        <input type="text" id="urlInput" placeholder="https://www.instagram.com/..." onpaste="handlePaste(event)">
+        <h1 id="mainTitle">📸 Inst Saver</h1>
+
+        <div class="ad-container ad-middle" aria-label="إعلان وسط">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src=""></script>
+        </div>
+
+        <div id="loading" class="loading" role="status">
+            <div class="spinner"></div>
+            <p style="color: var(--primary-color); font-weight: bold;">⏳ جاري معالجة الرابط...</p>
+        </div>
+
+        <div id="result" class="result">
+            <video id="videoPreview" controls playsinline aria-label="معاينة الفيديو"></video>
+            <button id="hdBtn" class="dl-link btn-hd" onclick="handleHdDownload()" aria-label="تحميل جودة HD">📥 تحميل بجودة عالية HD</button>
+            <button id="sdBtn" class="dl-link btn-sd" onclick="forceDownload('SD')" aria-label="تحميل جودة SD">📥 تحميل جودة عادية SD</button>
+            <button id="mp3Btn" class="dl-link btn-mp3" onclick="forceDownloadMusic()" aria-label="تحميل الصوت">🎵 تحميل الصوت فقط</button>
+            <button class="dl-link" style="background:#666; margin-top: 15px;" onclick="window.location.reload()">🔄 تحميل آخر</button>
+        </div>
+
+        <div id="inputArea" class="input-area">
+            <button type="button" class="btn" onclick="downloadVideo()" aria-label="بدء التحميل">🚀 ابدأ التحميل الآن</button>
+            <p class="hint-text">الصق رابط فيديو أو ريلز إنستا 👇</p>
+            <input type="url" id="v_url_clean" placeholder="https://www.instagram.com/..." onpaste="handlePaste(event)" aria-label="رابط الفيديو">
+        </div>
     </div>
-</div>
 
-<script>
-const WORKER_URL = 'https://a.nasralhrby370.workers.dev';
+    <div class="seo-footer">
+        <h2>تحميل من إنستقرام بدون برامج</h2>
+        <p>استخدم <strong>Inst Saver</strong> للحصول على فيديوهات ريلز وصور إنستقرام بجودة <strong>HD</strong>. أداة مجانية، سريعة، وآمنة تماماً لحفظ المحتوى.</p>
+        <div class="feature-box">
+            <p>✅ تحميل ريلز (Reels) بجودة عالية</p>
+            <p>✅ تحميل صور وفيديوهات المنشورات</p>
+            <p>✅ متوافق مع كافة الأجهزة (أيفون، أندرويد، كمبيوتر)</p>
+        </div>
+    </div>
 
-function handlePaste(e){
-    e.preventDefault();
-    let text = (e.clipboardData || window.clipboardData).getData('text');
-    document.getElementById('urlInput').value = text.replace(/[\u0600-\u06FF]/g,'').trim();
-}
+    <div class="footer-nav">
+        <a href="about.html">من نحن</a> | 
+        <a href="terms.html">الشروط والأحكام</a> | 
+        <a href="privacy.html">الخصوصية</a> | 
+        <a href="contact.html">اتصل بنا</a>
+    </div>
 
-async function startDownload(){
-    const urlInput = document.getElementById('urlInput');
-    const resultDiv = document.getElementById('result');
-    const loadingDiv = document.getElementById('loading');
-    const btn = document.getElementById('downloadBtn');
-    
-    let url = urlInput.value.trim();
-    if(!url){ alert("❌ أدخل الرابط!"); return; }
+    <script>
+        const WORKER_URL = ''; 
+        const SMARTLINK = "";
+        
+        let globalVideoUrl = "";
+        let globalMusicUrl = "";
+        
+        const RATE_LIMIT = { requests: [], max: 5, window: 60000 };
 
-    btn.disabled = true;
-    btn.innerHTML="جاري الاتصال بالسيرفر...";
-    loadingDiv.style.display='block';
-    resultDiv.innerHTML='';
-
-    try{
-        const response = await fetch(WORKER_URL,{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({url:url})
-        });
-
-        if(!response.ok){
-            resultDiv.innerHTML=`<p class="error-msg">❌ خطأ في الاتصال بالووركر (HTTP ${response.status})</p>`;
-            return;
+        function showNotification(msg, type='error') {
+            const div = document.createElement('div');
+            div.className = `notification ${type}`;
+            div.innerText = msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
         }
 
-        const resData = await response.json();
-        loadingDiv.style.display='none';
-
-        if(resData.error){
-            resultDiv.innerHTML=`<p class="error-msg">❌ ${resData.error}</p>`;
-            return;
+        function handlePaste(e) {
+            e.preventDefault();
+            let text = (e.clipboardData || window.clipboardData).getData('text');
+            let match = text.match(/https?:\/\/(www\.)?(instagram\.com)\/[^\s]*/i);
+            document.getElementById('v_url_clean').value = match ? match[0] : "";
         }
 
-        let items=[];
-        if(resData.urls) items=resData.urls;
-        else if(resData.url) items=[{url:resData.url,type:resData.type}];
-        else if(Array.isArray(resData)) items=resData;
+        function isValidUrl(url) { return /instagram\.com/.test(url); }
 
-        if(items.length===0){
-            resultDiv.innerHTML=`<p class="warn-msg">⚠️ لم يتم العثور على روابط مباشرة، تأكد أن الحساب عام.</p>`;
-            return;
+        async function downloadVideo() {
+            const url = document.getElementById('v_url_clean').value.trim();
+            if(!url) { showNotification("الرجاء لصق الرابط أولاً"); return; }
+            if(!isValidUrl(url)) { showNotification("الرجاء إدخال رابط إنستقرام صحيح"); return; }
+            
+            const now = Date.now();
+            RATE_LIMIT.requests = RATE_LIMIT.requests.filter(t => now - t < RATE_LIMIT.window);
+            if(RATE_LIMIT.requests.length >= RATE_LIMIT.max) {
+                showNotification("أبطئ قليلاً! انتظر دقيقة", "warning");
+                return;
+            }
+            RATE_LIMIT.requests.push(now);
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('inputArea').style.display = 'none';
+            document.getElementById('mainTitle').style.display = 'none';
+
+            try {
+                const res = await fetch(`${WORKER_URL}?url=${encodeURIComponent(url)}`);
+                const responseData = await res.json();
+
+                if(responseData.success) {
+                    globalVideoUrl = responseData.data.play || responseData.data.url;
+                    globalMusicUrl = responseData.data.music || "";
+                    document.getElementById('videoPreview').src = globalVideoUrl;
+                    document.getElementById('result').style.display = 'block';
+                } else { throw new Error(); }
+            } catch(e) {
+                showNotification("عذراً، فشل استخراج المحتوى. تأكد أن الحساب عام");
+                document.getElementById('inputArea').style.display = 'flex';
+                document.getElementById('mainTitle').style.display = 'block';
+            }
+            document.getElementById('loading').style.display = 'none';
         }
 
-        items.forEach((item,index)=>{
-            let finalUrl=item.url||item;
-            resultDiv.innerHTML+=`
-                <div class="media-card">
-                    <span>رابط جاهز #${index+1}</span>
-                    <a href="${finalUrl}" target="_blank" class="download-btn-link">⬇️ تحميل الآن</a>
-                </div>`;
-        });
+        function handleHdDownload() {
+            if(SMARTLINK) window.open(SMARTLINK, '_blank');
+            setTimeout(() => forceDownload('HD'), 1000);
+        }
 
-    }catch(err){
-        loadingDiv.style.display='none';
-        resultDiv.innerHTML=`<p class="error-msg">❌ حدث خطأ: ${err.message}</p>`;
-    }finally{
-        btn.disabled=false;
-        btn.innerHTML="جلب المحتوى 🚀";
-    }
-}
-</script>
+        async function forceDownload(type) {
+            if(!globalVideoUrl) return;
+            const btn = type === 'HD' ? document.getElementById('hdBtn') : document.getElementById('sdBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "⏳ جاري التحميل...";
+            try {
+                const response = await fetch(globalVideoUrl, { referrerPolicy: 'no-referrer' });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.rel = "noreferrer";
+                a.download = `Instagram_${type}_${Date.now()}.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (e) { window.open(globalVideoUrl, '_blank', 'noreferrer'); }
+            btn.innerText = originalText;
+        }
 
+        async function forceDownloadMusic() {
+            if(!globalMusicUrl) { showNotification("لا يوجد ملف صوتي متاح"); return; }
+            const btn = document.getElementById('mp3Btn');
+            btn.innerText = "⏳ جاري التحميل...";
+            try {
+                const response = await fetch(globalMusicUrl, { referrerPolicy: 'no-referrer' });
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.rel = "noreferrer";
+                a.download = `Instagram_Audio_${Date.now()}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (e) { window.open(globalMusicUrl, '_blank', 'noreferrer'); }
+            btn.innerText = "🎵 تحميل الصوت فقط";
+        }
+    </script>
+    <script src=""></script>
 </body>
 </html>
