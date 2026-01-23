@@ -98,6 +98,20 @@
 
         .hint-text { text-align: center; margin-bottom: 10px; color: #555; font-size: 0.9em; order: 2; }
 
+        /* إضافة تنسيق أزرار المواقع الأخرى */
+        .other-sites-box {
+            display: flex; gap: 10px; justify-content: center; margin: 15px 0; padding: 10px;
+            background: #f8f9fa; border-radius: 15px; border: 1px dashed #ddd;
+        }
+        .site-link {
+            flex: 1; padding: 10px; border-radius: 10px; text-decoration: none;
+            font-size: 14px; font-weight: bold; text-align: center; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .btn-tiktok { background: #000; color: #fff; }
+        .btn-x { background: #000; color: #fff; border: 1px solid #444; }
+        .site-link:hover { opacity: 0.8; transform: translateY(-2px); }
+
         .loading { display: none; text-align: center; margin: 20px 0; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -137,6 +151,7 @@
             input[type="url"] { background: #1e1e1e; color: white; border-color: #E1306C; }
             .hint-text { color: #bbb; }
             .feature-box { background: rgba(255,255,255,0.05); }
+            .other-sites-box { background: #1e1e1e; border-color: #333; }
         }
     </style>
 </head>
@@ -161,6 +176,11 @@
                 };
             </script>
             <script type="text/javascript" src=""></script>
+        </div>
+
+        <div class="other-sites-box">
+            <a href="https://abgazy.github.io/downloader/" class="site-link btn-tiktok">🎵 TikTok Saver</a>
+            <a href="https://abgazy.github.io/X/" class="site-link btn-x">𝕏 Saver</a>
         </div>
 
         <div id="loading" class="loading" role="status">
