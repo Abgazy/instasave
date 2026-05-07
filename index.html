@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bunny Jump - Cute MVP</title>
+    <title>Bunny Jump - Wait Start</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: sans-serif; touch-action: none; background: #a2d2ff; }
         canvas { display: block; }
@@ -41,6 +41,7 @@
     let bunnySkin = '🐰';
     let cameraY = 0;
     let isGameOver = false;
+    let gameStarted = false; // متغير جديد لبدء اللعبة
 
     function resize() {
         gameWidth = window.innerWidth;
@@ -50,18 +51,6 @@
     }
     window.addEventListener('resize', resize);
     resize();
-
-    // الشخصية
-    const player = {
-        x: gameWidth / 2,
-        y: gameHeight - 100,
-        width: 50,
-        height: 50,
-        vy: 0,
-        vx: 0,
-        jumpPower: -12,
-        gravity: 0.4
-    };
 
     // المنصات
     let platforms = [];
@@ -78,10 +67,22 @@
         });
     }
 
-    // البداية: توليد منصات أولية
+    // توليد منصات أولية
     for (let i = 0; i < 10; i++) {
         createPlatform(gameHeight - (i * 100));
     }
+
+    // وضع الشخصية فوق أول منصة
+    const player = {
+        x: platforms[0].x + 10,
+        y: platforms[0].y - 50,
+        width: 50,
+        height: 50,
+        vy: 0,
+        vx: 0,
+        jumpPower: -12,
+        gravity: 0.4
+    };
 
     function toggleShop() {
         const m = document.getElementById('shop-menu');
@@ -97,28 +98,27 @@
     function update() {
         if (isGameOver) return;
 
-        // جاذبية وحركة
-        player.vy += player.gravity;
-        player.y += player.vy;
-        player.x += player.vx;
+        if (gameStarted) {
+            // جاذبية وحركة فقط إذا بدأت اللعبة
+            player.vy += player.gravity;
+            player.y += player.vy;
+            player.x += player.vx;
+        }
 
-        // حدود الشاشة (يمين ويسار)
+        // حدود الشاشة
         if (player.x > gameWidth) player.x = -player.width;
         if (player.x < -player.width) player.x = gameWidth;
 
-        // الكاميرا تتبع اللاعب
         if (player.y < cameraY + 200) {
             cameraY = player.y - 200;
         }
 
-        // تحديث المنصات
         platforms.forEach((p, idx) => {
-            if (p.type === 'moving') {
+            if (p.type === 'moving' && gameStarted) {
                 p.x += p.speed;
                 if (p.x + p.w > gameWidth || p.x < 0) p.speed *= -1;
             }
 
-            // التصادم مع المنصة (فقط عند السقوط)
             if (player.vy > 0 && 
                 player.x + player.width > p.x && player.x < p.x + p.w &&
                 player.y + player.height > p.y && player.y + player.height < p.y + p.h + player.vy) {
@@ -130,7 +130,6 @@
                 }
             }
 
-            // حذف المنصات القديمة وتوليد جديدة
             if (p.y > cameraY + gameHeight + 100) {
                 platforms.splice(idx, 1);
                 createPlatform(cameraY - 50);
@@ -139,10 +138,9 @@
             }
         });
 
-        // الخسارة
         if (player.y > cameraY + gameHeight) {
             isGameOver = true;
-            alert("سقط الأرنب! محاولتك كانت رائعة. الارتفاع: " + score);
+            alert("سقط الأرنب! الارتفاع: " + score);
             location.reload();
         }
 
@@ -151,7 +149,6 @@
     }
 
     function draw() {
-        // تغيير لون السماء بناءً على الارتفاع
         let hue = 200 - (score / 50);
         ctx.fillStyle = `hsl(${hue}, 60%, 80%)`;
         ctx.fillRect(0, 0, gameWidth, gameHeight);
@@ -159,7 +156,6 @@
         ctx.save();
         ctx.translate(0, -cameraY);
 
-        // رسم المنصات
         platforms.forEach(p => {
             ctx.fillStyle = p.type === 'moving' ? '#ffafcc' : '#bde0fe';
             ctx.beginPath();
@@ -171,16 +167,25 @@
             }
         });
 
-        // رسم اللاعب
         ctx.font = "50px serif";
         ctx.textAlign = "center";
         ctx.fillText(bunnySkin, player.x + player.width/2, player.y + player.height);
 
+        // نص إرشادي في البداية
+        if (!gameStarted) {
+            ctx.fillStyle = "rgba(0,0,0,0.5)";
+            ctx.font = "20px sans-serif";
+            ctx.fillText("المس الشاشة للبدء 👆", gameWidth/2, player.y - 50);
+        }
+
         ctx.restore();
     }
 
-    // التحكم باللمس
     window.addEventListener('touchstart', (e) => {
+        if (!gameStarted) {
+            gameStarted = true; // تبدأ اللعبة عند أول لمسة
+            player.vy = player.jumpPower; // أول نقزة عند البداية
+        }
         const touchX = e.touches[0].clientX;
         if (touchX < gameWidth / 2) player.vx = -5;
         else player.vx = 5;
