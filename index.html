@@ -3,48 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cute Catch: Premium Edition</title>
+    <title>Bunny Jump - Cute MVP</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; background: #f0f4f8; }
+        body { margin: 0; overflow: hidden; font-family: sans-serif; touch-action: none; background: #a2d2ff; }
         canvas { display: block; }
-        #ui-layer { position: absolute; top: 20px; width: 100%; pointer-events: none; display: flex; justify-content: space-around; align-items: center; }
-        .stat { background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 20px; color: #444; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        #shop-btn { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); pointer-events: auto; background: #ffcfd2; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 #eeabb0; }
-        #shop-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 25px; display: none; pointer-events: auto; width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
-        .shop-item { display: inline-block; padding: 15px; margin: 10px; border: 3px solid #eee; border-radius: 15px; cursor: pointer; width: 80px; }
-        .shop-item.selected { border-color: #ffcfd2; background: #fff5f6; }
-        #close-shop { margin-top: 15px; background: #ddd; border: none; padding: 8px 20px; border-radius: 10px; }
+        #ui { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; }
+        .box { background: rgba(255,255,255,0.7); padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #333; }
+        #shop-btn { position: absolute; top: 70px; right: 20px; background: #ffafcc; border: none; padding: 10px; border-radius: 15px; color: white; font-weight: bold; pointer-events: auto; }
+        #shop-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 20px; display: none; width: 70%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); pointer-events: auto; }
+        .skin-item { display: inline-block; font-size: 40px; margin: 10px; padding: 10px; border: 2px solid #eee; border-radius: 10px; cursor: pointer; }
+        .skin-item.active { border-color: #ffafcc; background: #fff1f5; }
     </style>
 </head>
 <body>
-    <div id="ui-layer">
-        <div class="stat" id="score-display">💰: 0</div>
+    <div id="ui">
+        <div class="box" id="score">الارتفاع: 0</div>
+        <div class="box" id="coins">🥕: 0</div>
     </div>
-    
     <button id="shop-btn" onclick="toggleShop()">المتجر 🛒</button>
-
     <div id="shop-menu">
-        <h3>اختر الشكل (التكلفة 0 للتجربة)</h3>
-        <div class="shop-item selected" onclick="setSkin('basic')">⚪<br>أشكال</div>
-        <div class="shop-item" onclick="setSkin('cats')">🐱<br>قطط</div>
-        <div class="shop-item" onclick="setSkin('food')">🍎<br>فواكه</div>
-        <div class="shop-item" onclick="setSkin('space')">🚀<br>فضاء</div>
-        <br>
-        <button id="close-shop" onclick="toggleShop()">إغلاق</button>
+        <h3>اختر شخصيتك</h3>
+        <div class="skin-item active" onclick="setSkin('🐰')">🐰</div>
+        <div class="skin-item" onclick="setSkin('🐱')">🐱</div>
+        <div class="skin-item" onclick="setSkin('🐸')">🐸</div>
+        <div class="skin-item" onclick="setSkin('👨‍🚀')">👨‍🚀</div>
+        <br><button onclick="toggleShop()">إغلاق</button>
     </div>
-
     <canvas id="gameCanvas"></canvas>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreDisplay = document.getElementById('score-display');
     
-    let score = 0;
-    let items = [];
     let gameWidth, gameHeight;
-    let currentSkin = 'basic';
-    let bgHue = 200;
+    let score = 0;
+    let coins = 0;
+    let bunnySkin = '🐰';
+    let cameraY = 0;
+    let isGameOver = false;
 
     function resize() {
         gameWidth = window.innerWidth;
@@ -55,139 +51,144 @@
     window.addEventListener('resize', resize);
     resize();
 
-    const skins = {
-        basic: { circle: '#ffadad', square: '#ffd6a5', cChar: 'O', sChar: '[]' },
-        cats: { circle: '#ffc6ff', square: '#bdb2ff', cChar: '🐱', sChar: '🐶' },
-        food: { circle: '#ff6b6b', square: '#febf5e', cChar: '🍎', sChar: '🧀' },
-        space: { circle: '#a0c4ff', square: '#9bf6ff', cChar: '🪐', sChar: '🛸' }
+    // الشخصية
+    const player = {
+        x: gameWidth / 2,
+        y: gameHeight - 100,
+        width: 50,
+        height: 50,
+        vy: 0,
+        vx: 0,
+        jumpPower: -12,
+        gravity: 0.4
     };
 
-    class Item {
-        constructor(typeOverride = null) {
-            this.size = 60;
-            this.x = Math.random() * (gameWidth - this.size);
-            this.y = -this.size;
-            this.isDragging = false;
-            
-            let rand = Math.random();
-            if (typeOverride) this.type = typeOverride;
-            else if (rand < 0.08) this.type = 'bomb';
-            else if (rand < 0.13) this.type = 'star';
-            else if (rand < 0.55) this.type = 'circle';
-            else this.type = 'square';
+    // المنصات
+    let platforms = [];
+    function createPlatform(y) {
+        let type = Math.random() > 0.8 ? 'moving' : 'static';
+        platforms.push({
+            x: Math.random() * (gameWidth - 70),
+            y: y,
+            w: 70,
+            h: 15,
+            type: type,
+            speed: type === 'moving' ? 2 : 0,
+            hasCoin: Math.random() > 0.9
+        });
+    }
 
-            this.speed = (score >= 50 ? 5 : score >= 20 ? 3.5 : 2.5) + Math.random() * 1.5;
-        }
-
-        update() { if (!this.isDragging) this.y += this.speed; }
-
-        draw() {
-            ctx.save();
-            if (this.type === 'bomb') {
-                this.drawEmoji("💣");
-            } else if (this.type === 'star') {
-                this.drawEmoji("⭐");
-            } else if (this.type === 'circle') {
-                this.drawEmoji(skins[currentSkin].cChar, skins[currentSkin].circle);
-            } else {
-                this.drawEmoji(skins[currentSkin].sChar, skins[currentSkin].square);
-            }
-            ctx.restore();
-        }
-
-        drawEmoji(emoji, color) {
-            ctx.font = "50px serif";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            if (color) {
-                ctx.fillStyle = color;
-                ctx.beginPath();
-                ctx.arc(this.x + 30, this.y + 30, 25, 0, Math.PI*2);
-                ctx.fill();
-            }
-            ctx.fillStyle = "#000";
-            ctx.fillText(emoji, this.x + 30, this.y + 30);
-        }
+    // البداية: توليد منصات أولية
+    for (let i = 0; i < 10; i++) {
+        createPlatform(gameHeight - (i * 100));
     }
 
     function toggleShop() {
-        const menu = document.getElementById('shop-menu');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        const m = document.getElementById('shop-menu');
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
     }
 
     function setSkin(s) {
-        currentSkin = s;
-        document.querySelectorAll('.shop-item').forEach(el => el.classList.remove('selected'));
-        event.currentTarget.classList.add('selected');
-    }
-
-    function drawBins() {
-        bgHue = (bgHue + 0.05) % 360;
-        ctx.fillStyle = `hsl(${bgHue}, 40%, 95%)`;
-        ctx.fillRect(0, 0, gameWidth, gameHeight);
-
-        ctx.fillStyle = 'rgba(255, 173, 173, 0.3)';
-        ctx.fillRect(0, gameHeight - 120, gameWidth/2, 120);
-        ctx.fillStyle = 'rgba(189, 178, 255, 0.3)';
-        ctx.fillRect(gameWidth/2, gameHeight - 120, gameWidth/2, 120);
+        bunnySkin = s;
+        document.querySelectorAll('.skin-item').forEach(el => el.classList.remove('active'));
+        event.currentTarget.classList.add('active');
     }
 
     function update() {
-        ctx.clearRect(0, 0, gameWidth, gameHeight);
-        drawBins();
+        if (isGameOver) return;
 
-        if (Math.random() < 0.025) items.push(new Item());
+        // جاذبية وحركة
+        player.vy += player.gravity;
+        player.y += player.vy;
+        player.x += player.vx;
 
-        for (let i = items.length - 1; i >= 0; i--) {
-            items[i].update();
-            items[i].draw();
+        // حدود الشاشة (يمين ويسار)
+        if (player.x > gameWidth) player.x = -player.width;
+        if (player.x < -player.width) player.x = gameWidth;
 
-            if (items[i].y > gameHeight - 100) {
-                if (items[i].type === 'bomb') {
-                   // القنبلة تنفجر إذا وصلت تحت
-                } else if (items[i].type === 'star') {
-                    score += 5;
-                } else {
-                    const side = items[i].x < gameWidth/2 ? 'left' : 'right';
-                    if ((items[i].type === 'circle' && side === 'left') || (items[i].type === 'square' && side === 'right')) {
-                        score += 1;
-                    } else {
-                        score = Math.max(0, score - 2);
-                    }
-                }
-                scoreDisplay.innerText = "💰: " + score;
-                items.splice(i, 1);
-            }
+        // الكاميرا تتبع اللاعب
+        if (player.y < cameraY + 200) {
+            cameraY = player.y - 200;
         }
+
+        // تحديث المنصات
+        platforms.forEach((p, idx) => {
+            if (p.type === 'moving') {
+                p.x += p.speed;
+                if (p.x + p.w > gameWidth || p.x < 0) p.speed *= -1;
+            }
+
+            // التصادم مع المنصة (فقط عند السقوط)
+            if (player.vy > 0 && 
+                player.x + player.width > p.x && player.x < p.x + p.w &&
+                player.y + player.height > p.y && player.y + player.height < p.y + p.h + player.vy) {
+                player.vy = player.jumpPower;
+                if (p.hasCoin) {
+                    p.hasCoin = false;
+                    coins++;
+                    document.getElementById('coins').innerText = "🥕: " + coins;
+                }
+            }
+
+            // حذف المنصات القديمة وتوليد جديدة
+            if (p.y > cameraY + gameHeight + 100) {
+                platforms.splice(idx, 1);
+                createPlatform(cameraY - 50);
+                score = Math.max(score, Math.floor(Math.abs(player.y - (gameHeight - 100)) / 10));
+                document.getElementById('score').innerText = "الارتفاع: " + score;
+            }
+        });
+
+        // الخسارة
+        if (player.y > cameraY + gameHeight) {
+            isGameOver = true;
+            alert("سقط الأرنب! محاولتك كانت رائعة. الارتفاع: " + score);
+            location.reload();
+        }
+
+        draw();
         requestAnimationFrame(update);
     }
 
-    let draggedItem = null;
-    canvas.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        items.forEach((item, idx) => {
-            if (touch.clientX > item.x && touch.clientX < item.x + 60 && touch.clientY > item.y && touch.clientY < item.y + 60) {
-                if (item.type === 'bomb') {
-                    score = Math.max(0, score - 10);
-                    scoreDisplay.innerText = "💰: " + score;
-                    items.splice(idx, 1);
-                    return;
-                }
-                draggedItem = item;
-                item.isDragging = true;
+    function draw() {
+        // تغيير لون السماء بناءً على الارتفاع
+        let hue = 200 - (score / 50);
+        ctx.fillStyle = `hsl(${hue}, 60%, 80%)`;
+        ctx.fillRect(0, 0, gameWidth, gameHeight);
+
+        ctx.save();
+        ctx.translate(0, -cameraY);
+
+        // رسم المنصات
+        platforms.forEach(p => {
+            ctx.fillStyle = p.type === 'moving' ? '#ffafcc' : '#bde0fe';
+            ctx.beginPath();
+            ctx.roundRect ? ctx.roundRect(p.x, p.y, p.w, p.h, 5) : ctx.rect(p.x, p.y, p.w, p.h);
+            ctx.fill();
+            if (p.hasCoin) {
+                ctx.font = "20px serif";
+                ctx.fillText("🥕", p.x + p.w/2 - 10, p.y - 5);
             }
         });
+
+        // رسم اللاعب
+        ctx.font = "50px serif";
+        ctx.textAlign = "center";
+        ctx.fillText(bunnySkin, player.x + player.width/2, player.y + player.height);
+
+        ctx.restore();
+    }
+
+    // التحكم باللمس
+    window.addEventListener('touchstart', (e) => {
+        const touchX = e.touches[0].clientX;
+        if (touchX < gameWidth / 2) player.vx = -5;
+        else player.vx = 5;
     });
 
-    canvas.addEventListener('touchmove', (e) => {
-        if (draggedItem) {
-            draggedItem.x = e.touches[0].clientX - 30;
-            draggedItem.y = e.touches[0].clientY - 30;
-            e.preventDefault();
-        }
-    }, {passive: false});
-
-    canvas.addEventListener('touchend', () => { if (draggedItem) { draggedItem.isDragging = false; draggedItem = null; } });
+    window.addEventListener('touchend', () => {
+        player.vx = 0;
+    });
 
     update();
 </script>
