@@ -3,36 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Catch & Match - Cute Version</title>
+    <title>Cute Catch: Premium Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; touch-action: none; background: #f0f4f8; }
         canvas { display: block; }
-        #score { 
-            position: absolute; 
-            top: 40px; 
-            width: 100%; 
-            text-align: center; 
-            font-size: 32px; 
-            font-weight: bold;
-            color: #444; 
-            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
-            pointer-events: none; 
-        }
+        #ui-layer { position: absolute; top: 20px; width: 100%; pointer-events: none; display: flex; justify-content: space-around; align-items: center; }
+        .stat { background: rgba(255,255,255,0.8); padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 20px; color: #444; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #shop-btn { position: absolute; bottom: 130px; left: 50%; transform: translateX(-50%); pointer-events: auto; background: #ffcfd2; border: none; padding: 12px 25px; border-radius: 50px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); font-size: 18px; cursor: pointer; box-shadow: 0 4px 0 #eeabb0; }
+        #shop-menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 25px; display: none; pointer-events: auto; width: 80%; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+        .shop-item { display: inline-block; padding: 15px; margin: 10px; border: 3px solid #eee; border-radius: 15px; cursor: pointer; width: 80px; }
+        .shop-item.selected { border-color: #ffcfd2; background: #fff5f6; }
+        #close-shop { margin-top: 15px; background: #ddd; border: none; padding: 8px 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div id="score">النقاط: 0</div>
+    <div id="ui-layer">
+        <div class="stat" id="score-display">💰: 0</div>
+    </div>
+    
+    <button id="shop-btn" onclick="toggleShop()">المتجر 🛒</button>
+
+    <div id="shop-menu">
+        <h3>اختر الشكل (التكلفة 0 للتجربة)</h3>
+        <div class="shop-item selected" onclick="setSkin('basic')">⚪<br>أشكال</div>
+        <div class="shop-item" onclick="setSkin('cats')">🐱<br>قطط</div>
+        <div class="shop-item" onclick="setSkin('food')">🍎<br>فواكه</div>
+        <div class="shop-item" onclick="setSkin('space')">🚀<br>فضاء</div>
+        <br>
+        <button id="close-shop" onclick="toggleShop()">إغلاق</button>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreElement = document.getElementById('score');
-
+    const scoreDisplay = document.getElementById('score-display');
+    
     let score = 0;
     let items = [];
-    let gameHeight, gameWidth;
-    let bgHue = 200; // للتحكم في لون الخلفية
+    let gameWidth, gameHeight;
+    let currentSkin = 'basic';
+    let bgHue = 200;
 
     function resize() {
         gameWidth = window.innerWidth;
@@ -43,139 +55,107 @@
     window.addEventListener('resize', resize);
     resize();
 
+    const skins = {
+        basic: { circle: '#ffadad', square: '#ffd6a5', cChar: 'O', sChar: '[]' },
+        cats: { circle: '#ffc6ff', square: '#bdb2ff', cChar: '🐱', sChar: '🐶' },
+        food: { circle: '#ff6b6b', square: '#febf5e', cChar: '🍎', sChar: '🧀' },
+        space: { circle: '#a0c4ff', square: '#9bf6ff', cChar: '🪐', sChar: '🛸' }
+    };
+
     class Item {
         constructor(typeOverride = null) {
-            this.size = 55;
+            this.size = 60;
             this.x = Math.random() * (gameWidth - this.size);
             this.y = -this.size;
             this.isDragging = false;
             
-            // تحديد النوع: مربع، دائرة، أو نجمة نادرة
-            if (typeOverride) {
-                this.type = typeOverride;
-            } else {
-                let rand = Math.random();
-                if (rand < 0.05) this.type = 'star'; // نسبة 5% ظهور نجمة
-                else if (rand < 0.52) this.type = 'circle';
-                else this.type = 'square';
-            }
+            let rand = Math.random();
+            if (typeOverride) this.type = typeOverride;
+            else if (rand < 0.08) this.type = 'bomb';
+            else if (rand < 0.13) this.type = 'star';
+            else if (rand < 0.55) this.type = 'circle';
+            else this.type = 'square';
 
-            // الألوان
-            if (this.type === 'circle') this.color = '#ffadad';
-            else if (this.type === 'square') this.color = '#ffd6a5';
-            else this.color = '#fdffb6'; // لون النجمة
-
-            // السرعة تزيد إذا كانت النقاط فوق 20
-            let baseSpeed = score >= 20 ? 4 : 2;
-            this.speed = baseSpeed + Math.random() * 2;
+            this.speed = (score >= 50 ? 5 : score >= 20 ? 3.5 : 2.5) + Math.random() * 1.5;
         }
 
-        update() {
-            if (!this.isDragging) {
-                this.y += this.speed;
-            }
-        }
+        update() { if (!this.isDragging) this.y += this.speed; }
 
         draw() {
             ctx.save();
-            ctx.fillStyle = this.color;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = 'rgba(0,0,0,0.1)';
-
-            if (this.type === 'circle') {
-                ctx.beginPath();
-                ctx.arc(this.x + this.size/2, this.y + this.size/2, this.size/2, 0, Math.PI * 2);
-                ctx.fill();
-                this.drawFace();
-            } else if (this.type === 'square') {
-                ctx.roundRect ? ctx.beginPath() || ctx.roundRect(this.x, this.y, this.size, this.size, 10) || ctx.fill() : ctx.fillRect(this.x, this.y, this.size, this.size);
-                if (!ctx.roundRect) ctx.fillRect(this.x, this.y, this.size, this.size);
-                this.drawFace();
+            if (this.type === 'bomb') {
+                this.drawEmoji("💣");
             } else if (this.type === 'star') {
-                this.drawStar(this.x + this.size/2, this.y + this.size/2, 5, this.size/2, this.size/4);
-                this.drawFace();
+                this.drawEmoji("⭐");
+            } else if (this.type === 'circle') {
+                this.drawEmoji(skins[currentSkin].cChar, skins[currentSkin].circle);
+            } else {
+                this.drawEmoji(skins[currentSkin].sChar, skins[currentSkin].square);
             }
             ctx.restore();
         }
 
-        drawFace() {
-            // العيون
-            ctx.fillStyle = '#444';
-            ctx.beginPath();
-            ctx.arc(this.x + this.size*0.35, this.y + this.size*0.4, 4, 0, Math.PI*2);
-            ctx.arc(this.x + this.size*0.65, this.y + this.size*0.4, 4, 0, Math.PI*2);
-            ctx.fill();
-            // الابتسامة
-            ctx.strokeStyle = '#444';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(this.x + this.size/2, this.y + this.size*0.55, 10, 0.2, Math.PI - 0.2);
-            ctx.stroke();
-        }
-
-        drawStar(cx, cy, spikes, outerRadius, innerRadius) {
-            let rot = Math.PI / 2 * 3;
-            let x = cx;
-            let y = cy;
-            let step = Math.PI / spikes;
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - outerRadius);
-            for (let i = 0; i < spikes; i++) {
-                x = cx + Math.cos(rot) * outerRadius;
-                y = cy + Math.sin(rot) * outerRadius;
-                ctx.lineTo(x, y);
-                rot += step;
-                x = cx + Math.cos(rot) * innerRadius;
-                y = cy + Math.sin(rot) * innerRadius;
-                ctx.lineTo(x, y);
-                rot += step;
+        drawEmoji(emoji, color) {
+            ctx.font = "50px serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            if (color) {
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(this.x + 30, this.y + 30, 25, 0, Math.PI*2);
+                ctx.fill();
             }
-            ctx.lineTo(cx, cy - outerRadius);
-            ctx.closePath();
-            ctx.fill();
+            ctx.fillStyle = "#000";
+            ctx.fillText(emoji, this.x + 30, this.y + 30);
         }
     }
 
-    function drawBackground() {
-        bgHue = (bgHue + 0.1) % 360; // تغيير اللون ببطء
-        ctx.fillStyle = `hsl(${bgHue}, 30%, 90%)`;
+    function toggleShop() {
+        const menu = document.getElementById('shop-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function setSkin(s) {
+        currentSkin = s;
+        document.querySelectorAll('.shop-item').forEach(el => el.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+    }
+
+    function drawBins() {
+        bgHue = (bgHue + 0.05) % 360;
+        ctx.fillStyle = `hsl(${bgHue}, 40%, 95%)`;
         ctx.fillRect(0, 0, gameWidth, gameHeight);
-        
-        // رسم السلال
-        ctx.fillStyle = 'rgba(255, 173, 173, 0.4)';
+
+        ctx.fillStyle = 'rgba(255, 173, 173, 0.3)';
         ctx.fillRect(0, gameHeight - 120, gameWidth/2, 120);
-        ctx.fillStyle = 'rgba(255, 214, 165, 0.4)';
+        ctx.fillStyle = 'rgba(189, 178, 255, 0.3)';
         ctx.fillRect(gameWidth/2, gameHeight - 120, gameWidth/2, 120);
-        
-        // نصوص توضيحية للسلال
-        ctx.fillStyle = '#888';
-        ctx.font = '16px sans-serif';
-        ctx.fillText("دوائر هنا", 40, gameHeight - 50);
-        ctx.fillText("مربعات هنا", gameWidth - 100, gameHeight - 50);
     }
 
     function update() {
-        drawBackground();
-        if (Math.random() < (score >= 20 ? 0.03 : 0.02)) items.push(new Item());
+        ctx.clearRect(0, 0, gameWidth, gameHeight);
+        drawBins();
+
+        if (Math.random() < 0.025) items.push(new Item());
 
         for (let i = items.length - 1; i >= 0; i--) {
             items[i].update();
             items[i].draw();
 
-            if (items[i].y > gameHeight - 120) {
-                if (items[i].type === 'star') {
-                    // النجمة تعطي نقاط أينما سقطت إذا لمست السلال
+            if (items[i].y > gameHeight - 100) {
+                if (items[i].type === 'bomb') {
+                   // القنبلة تنفجر إذا وصلت تحت
+                } else if (items[i].type === 'star') {
                     score += 5;
-                    items.splice(i, 1);
                 } else {
-                    const correctSide = (items[i].type === 'circle' && items[i].x < gameWidth/2) || 
-                                        (items[i].type === 'square' && items[i].x > gameWidth/2);
-                    if (correctSide) score += 1;
-                    else score = Math.max(0, score - 1);
-                    items.splice(i, 1);
+                    const side = items[i].x < gameWidth/2 ? 'left' : 'right';
+                    if ((items[i].type === 'circle' && side === 'left') || (items[i].type === 'square' && side === 'right')) {
+                        score += 1;
+                    } else {
+                        score = Math.max(0, score - 2);
+                    }
                 }
-                scoreElement.innerText = "النقاط: " + score;
-            } else if (items[i].y > gameHeight) {
+                scoreDisplay.innerText = "💰: " + score;
                 items.splice(i, 1);
             }
         }
@@ -185,9 +165,14 @@
     let draggedItem = null;
     canvas.addEventListener('touchstart', (e) => {
         const touch = e.touches[0];
-        items.forEach(item => {
-            if (touch.clientX > item.x - 20 && touch.clientX < item.x + item.size + 20 &&
-                touch.clientY > item.y - 20 && touch.clientY < item.y + item.size + 20) {
+        items.forEach((item, idx) => {
+            if (touch.clientX > item.x && touch.clientX < item.x + 60 && touch.clientY > item.y && touch.clientY < item.y + 60) {
+                if (item.type === 'bomb') {
+                    score = Math.max(0, score - 10);
+                    scoreDisplay.innerText = "💰: " + score;
+                    items.splice(idx, 1);
+                    return;
+                }
                 draggedItem = item;
                 item.isDragging = true;
             }
@@ -196,19 +181,13 @@
 
     canvas.addEventListener('touchmove', (e) => {
         if (draggedItem) {
-            const touch = e.touches[0];
-            draggedItem.x = touch.clientX - draggedItem.size/2;
-            draggedItem.y = touch.clientY - draggedItem.size/2;
-            e.preventDefault(); 
+            draggedItem.x = e.touches[0].clientX - 30;
+            draggedItem.y = e.touches[0].clientY - 30;
+            e.preventDefault();
         }
-    }, { passive: false });
+    }, {passive: false});
 
-    canvas.addEventListener('touchend', () => {
-        if (draggedItem) {
-            draggedItem.isDragging = false;
-            draggedItem = null;
-        }
-    });
+    canvas.addEventListener('touchend', () => { if (draggedItem) { draggedItem.isDragging = false; draggedItem = null; } });
 
     update();
 </script>
